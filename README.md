@@ -5,25 +5,27 @@ Foodini is a responsive web application that helps users decide what to cook and
 1. **Meal preparation and planning**: Find recipes using tags and preferences, choose or randomly select meals, scale portions, and follow cooking instructions. Plan several days ahead, including cooking once for two days.
 2. **Shopping list preparation**: Turn planned meals into one categorized shopping list with the quantities needed, then check off purchases while shopping.
 
+The intended audience is the owner and their girlfriend. Keep the interface compact and practical for daily use: simple navigation, readable recipes, meal planning, and a shopping checklist. Avoid promotional copy, oversized headings, decorative panels, and repeated calls to action.
+
 This README is the single source of truth for the product concept, domain rules, and agent work. Update it when agreed requirements change. The sections below describe the intended application; they do not imply that the features are already implemented.
 
 ## Current implementation
 
 The frontend in `foodini-ui/` is a working browser-only proof of concept with a Polish interface. It includes:
 
-- Seven recipes with measured ingredients and cooking instructions: chickpea curry with brown rice, butter chicken, konjac noodles with chicken, vegetables and peanut-soy sauce, turkey meatballs, beef stew, a vegetable bake, and pork loin roasted with vegetables.
+- Thirteen recipes with measured ingredients and Polish cooking instructions: chickpea curry with brown rice, butter chicken, konjac noodles with chicken and peanut-soy sauce, turkey meatballs, beef stew, a vegetable bake, roasted pork loin, salmon with broccoli and buckwheat in vinaigrette, creamy salmon pasta with sun-dried tomatoes, bolognese with equal dry weights of wheat and chickpea pasta, bigos, chicken salad with garlic sauce, and chicken-and-bacon skewers with zucchini, pepper, and onion.
 - Recipe search by name or ingredient (including searches without Polish accents), meal-type filters, tag filters, and random selection from the matching recipes.
 - Recipe details with ingredient quantities scaled to the selected portions.
 - A 3–7 day planner with 1–8 portions per day, optional two-day batches, meal replacement, and locks that preserve a whole batch.
 - Shopping lists grouped by aisle, checkboxes, custom products with quantities and categories, clipboard copying, and text-file download.
 - Browser `localStorage` persistence, validation of saved data, and recovery to the sample plan if saved data is invalid.
-- Responsive layouts with desktop sidebar navigation and mobile bottom navigation.
+- Responsive layouts with three simple tabs in a sticky header, compact recipe rows, and a shopping checklist. The custom-product form expands under `Dodaj produkt`.
 
 The first visit starts with a sample five-day plan for two people. There is no backend, account system, or cross-device synchronization. The data stays in the current browser and origin; clearing browser storage removes it. All photos and fonts are served locally. Photos illustrate the dishes and do not show the exact recipes.
 
 For this POC, selected tags use **AND** matching. When a plan change alters an ingredient's required quantity, that ingredient becomes unchecked; unchanged quantities keep their checkmarks, and custom items remain. Changes to planner settings take effect when the user chooses `Ułóż nowy plan`; locked batches retain their original recipes and portions. The portion selector in recipe details previews ingredient scaling; adding a recipe to the plan uses that plan slot's portions.
 
-This is a small seed catalog: every recipe is an `lunch` or `dinner` entry, and none currently carries the `low-gi` tag. Filters with no matching seed recipes display an empty state. Nutrition calculations and automatic unit conversion are not implemented.
+Meal types are limited to `lunch` (Obiady) and `dinner` (Kolacje); `Wszystkie` shows both. Dietary tags remain available. None of the seed recipes currently carries the `low-gi` tag. Filters with no matching seed recipes display an empty state. Nutrition calculations and automatic unit conversion are not implemented.
 
 The existing stack is React, TypeScript, Vite, and ESLint. Dependency versions and available scripts are defined in [foodini-ui/package.json](foodini-ui/package.json).
 
@@ -33,8 +35,8 @@ The existing stack is React, TypeScript, Vite, and ESLint. Dependency versions a
 - **English** for code and documentation: types, identifiers, functions, comments, and project guidance.
 - Design for phones first, including use in supermarket aisles, and adapt to tablets and desktops.
 - Provide three connected views: `Posiłki` (recipes), `Planer` (meal plan), and `Lista zakupów` (shopping list).
-- Use clear typography, visible tag badges, accessible labels, keyboard navigation, and touch targets of at least 44 × 44 CSS pixels.
-- Use bottom navigation on phones and a header or sidebar on larger screens.
+- Use clear typography, accessible labels, keyboard navigation, and touch targets of at least 44 × 44 CSS pixels.
+- Use the same three navigation tabs in a compact sticky header on phones and larger screens. Keep styling simple and omit marketing elements.
 
 ## Product requirements
 
@@ -42,7 +44,7 @@ The existing stack is React, TypeScript, Vite, and ESLint. Dependency versions a
 
 - Start with a seeded catalog of realistic Polish recipes, including measured ingredients, preparation time, portions, and step-by-step instructions.
 - Browse recipes and search by recipe name or ingredient.
-- Filter by meal type and dietary or lifestyle **tags**, such as low GI (`Niski IG`), dairy-free (`Bez nabiału`), quick (`Szybkie`, up to 25 minutes), vegetarian (`Wegetariańskie`), vegan (`Wegańskie`), high-protein (`Wysokobiałkowe`), and one-pot (`Jednogarnkowe`).
+- Limit meal-type filters to `Obiady` and `Kolacje`, with `Wszystkie` to view both. Also filter by dietary or lifestyle **tags**, such as low GI (`Niski IG`), dairy-free (`Bez nabiału`), quick (`Szybkie`, up to 25 minutes), vegetarian (`Wegetariańskie`), vegan (`Wegańskie`), high-protein (`Wysokobiałkowe`), and one-pot (`Jednogarnkowe`).
 - Let users choose a recipe or use `Wylosuj posiłek` to randomly select one that matches the active filters. Show an empty state when nothing matches.
 - Show recipe details in a modal, drawer, or dedicated view with ingredients, a portion selector, and cooking instructions.
 - Generate a meal plan for **5 days by default**, adjustable from **3 to 7 days**, with a configurable number of portions per day.
@@ -83,10 +85,11 @@ These are the intended domain contracts. Keep domain calculations separate from 
 | `instructions` | `string[]` | Ordered cooking instructions in Polish |
 | `nutrition` | `NutritionInfo?` | Optional per-serving nutrition |
 | `imageUrl` | `string?` | Optional image URL or placeholder asset |
+| `imageCredit` | `object?` | Photo attribution when required: `author`, `sourceUrl`, `licenseName`, and `licenseUrl` |
 
 | Type | Values or fields |
 | --- | --- |
-| `MealType` | `breakfast` (Śniadanie), `lunch` (Obiad), `dinner` (Kolacja), `snack` (Przekąska) |
+| `MealType` | `lunch` (Obiad), `dinner` (Kolacja) |
 | `Difficulty` | `easy`, `medium`, `hard` |
 | `RecipeTag` | `low-gi`, `dairy-free`, `quick`, `vegetarian`, `vegan`, `high-protein`, `one-pot` |
 | `NutritionInfo` | `caloriesKcal`, `proteinG`, `fatG`, `carbsG`, each a number per serving |
@@ -173,14 +176,16 @@ Tests in `foodini-ui/tests/domain.test.ts` cover search and tag matching, portio
 | --- | --- |
 | `foodini-ui/src/App.tsx` | Connected recipe, planner, and shopping views |
 | `foodini-ui/src/components/` | Recipe dialog and shared SVG icons |
-| `foodini-ui/src/data/recipes.ts` | Seven Polish recipes, tag labels, units, and shopping categories |
+| `foodini-ui/src/data/recipes.ts` | Thirteen Polish recipes, tag labels, units, and shopping categories |
 | `foodini-ui/src/types.ts` | Domain types |
 | `foodini-ui/src/domain.ts` | Filtering, plan generation, batch operations, scaling, and aggregation |
 | `foodini-ui/src/storage.ts` | Initial sample state and validation of persisted data |
 | `foodini-ui/public/images/` | Local illustrative food photos |
-| `foodini-ui/public/fonts/` | DM Sans and Manrope fonts with their bundled OFL licenses |
+| `foodini-ui/public/fonts/` | Bundled fonts and their OFL licenses; the simplified interface uses DM Sans throughout |
 
 Illustrative photos are from Unsplash: [chickpea curry](https://unsplash.com/photos/RELOvb0rrCE), [butter chicken](https://images.unsplash.com/photo-1603894584373-5ac82b2ae398), [noodles](https://unsplash.com/photos/EDoy1yjPLV0), [meatballs](https://images.unsplash.com/photo-1529042410759-befb1204b468), [stew](https://unsplash.com/photos/gbtQfadV5qY), [vegetable casserole](https://unsplash.com/photos/uHggZfKi8Ks), and [roasted meat](https://images.unsplash.com/photo-1432139555190-58524dae6a55). Font licenses: [DM Sans](foodini-ui/public/fonts/DM-Sans-OFL.txt) and [Manrope](foodini-ui/public/fonts/Manrope-OFL.txt).
+
+Additional Unsplash photos: [salmon and broccoli](https://unsplash.com/photos/1tfY-1x5kV0), [salmon pasta](https://unsplash.com/photos/vQeLS0R9wiw), [bolognese](https://unsplash.com/photos/qits91IZv1o), [chicken salad](https://unsplash.com/photos/4V1TfWW8PtI), and [skewers](https://unsplash.com/photos/RfpGZ2x6COA). These use the [Unsplash License](https://unsplash.com/license). The bigos photo is [Bigos - 2025.02.15.jpg by Aw58](https://commons.wikimedia.org/wiki/File:Bigos_-_2025.02.15.jpg), under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), served as a resized Wikimedia thumbnail. Its attribution and license link are displayed with the recipes; retain them when reusing the image.
 
 ## Guidance for agents and contributors
 

@@ -1,4 +1,4 @@
-export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'
+export type MealType = 'lunch' | 'dinner'
 export type RecipeTag = 'low-gi' | 'dairy-free' | 'quick' | 'vegetarian' | 'vegan' | 'high-protein' | 'one-pot'
 export type UnitType = 'g' | 'ml' | 'pcs' | 'tbsp' | 'tsp' | 'clove' | 'can' | 'pack' | 'pinch'
 export type ShopCategory = 'produce' | 'dairy' | 'bakery' | 'meat_fish_tofu' | 'grains_pantry' | 'canned_condiments' | 'other'
@@ -24,6 +24,7 @@ export interface Recipe {
   instructions: string[]
   imageUrl: string
   imagePosition?: string
+  imageCredit?: { author: string; sourceUrl: string; licenseName: string; licenseUrl: string }
 }
 
 export interface MealPlanDay {

@@ -12,13 +12,14 @@ test('search finds Polish names without accents and also searches ingredients', 
   assert.equal(filterRecipes(recipes, 'wolowy', [], '')[0]?.id, 'beef-stew')
   assert.equal(filterRecipes(recipes, 'REKAWA', [], '')[0]?.id, 'roast-pork')
   assert.equal(filterRecipes(recipes, 'maslo orzechowe', [], '')[0]?.id, 'konjac-chicken')
-  assert.equal(filterRecipes(recipes, '  CIECIERZYCY  ', [], '').length, 1)
+  assert.equal(filterRecipes(recipes, '  CIECIERZYCY  ', [], '').length, 2)
 })
 
 test('selected tags use AND matching and meal types are respected', () => {
-  assert.deepEqual(filterRecipes(recipes, '', ['quick', 'high-protein'], 'dinner').map(recipe => recipe.id), ['konjac-chicken'])
+  assert.deepEqual(filterRecipes(recipes, '', ['quick', 'high-protein'], 'dinner').map(recipe => recipe.id), ['konjac-chicken', 'chicken-garlic-salad'])
   assert.equal(filterRecipes(recipes, '', ['vegan', 'high-protein'], '').length, 0)
-  assert.equal(filterRecipes(recipes, '', [], 'breakfast').length, 0)
+  assert.ok(filterRecipes(recipes, '', [], 'lunch').every(recipe => recipe.mealType === 'lunch'))
+  assert.ok(filterRecipes(recipes, '', [], 'dinner').every(recipe => recipe.mealType === 'dinner'))
 })
 
 test('random selection stays in the filtered pool and avoids the current recipe when possible', () => {
@@ -149,15 +150,38 @@ test('invalid storage cannot introduce unknown recipes, incomplete batches, or i
   assert.throws(() => parseSavedState(JSON.stringify(invalidItem)))
 })
 
-test('the seven seed recipes have valid quantities, identifiers, tags, and Polish instructions', () => {
-  assert.equal(recipes.length, 7)
-  assert.equal(new Set(recipes.map(recipe => recipe.id)).size, 7)
+test('the seed catalog has valid quantities, identifiers, tags, and Polish instructions', () => {
+  assert.equal(recipes.length, 13)
+  assert.equal(new Set(recipes.map(recipe => recipe.id)).size, recipes.length)
   for (const recipe of recipes) {
     assert.ok(recipe.basePortions > 0)
+    assert.ok(['lunch', 'dinner'].includes(recipe.mealType))
     assert.ok(recipe.instructions.length >= 4)
     assert.ok(recipe.ingredients.every(item => item.amount > 0))
     assert.equal(new Set(recipe.ingredients.map(item => `${item.id}:${item.unit}`)).size, recipe.ingredients.length)
     if (recipe.tags.includes('quick')) assert.ok(recipe.prepTimeMinutes <= 25)
     if (recipe.tags.includes('vegan')) assert.ok(recipe.tags.includes('vegetarian') && recipe.tags.includes('dairy-free'))
   }
+})
+
+test('mixed-pasta bolognese keeps both pasta types separate and in equal dry weights in a batch plan', () => {
+  const recipe = recipes.find(recipe => recipe.id === 'bolognese-mixed-pasta')!
+  const plan = generatePlan([recipe], { duration: 3, people: 2, batch: true }, [], fixedRandom)
+  const items = aggregateShoppingList(plan, recipes)
+  const wheatPasta = items.find(item => item.ingredientId === 'wheat-pasta')!
+  const chickpeaPasta = items.find(item => item.ingredientId === 'chickpea-pasta')!
+  assert.notEqual(wheatPasta.id, chickpeaPasta.id)
+  assert.equal(wheatPasta.amount, 240)
+  assert.equal(chickpeaPasta.amount, 240)
+  assert.equal(wheatPasta.unit, 'g')
+  assert.equal(chickpeaPasta.unit, 'g')
+})
+
+test('four-serving bigos scales to a two-person plan without counting leftovers twice', () => {
+  const recipe = recipes.find(recipe => recipe.id === 'bigos')!
+  const plan = generatePlan([recipe], { duration: 3, people: 2, batch: true }, [], fixedRandom)
+  const items = aggregateShoppingList(plan, recipes)
+  assert.equal(items.find(item => item.ingredientId === 'sauerkraut')?.amount, 750)
+  assert.equal(items.find(item => item.ingredientId === 'pork-shoulder')?.amount, 600)
+  assert.doesNotThrow(() => parseSavedState(JSON.stringify({ ...createInitialState(), plan })))
 })

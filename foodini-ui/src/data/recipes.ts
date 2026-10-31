@@ -38,6 +38,10 @@ const pepper = (amount = 1) => ingredient('red-pepper', 'Papryka czerwona', amou
 const potatoes = (amount = 400) => ingredient('potatoes', 'Ziemniaki', amount, 'g', 'produce')
 const passata = (amount = 300) => ingredient('tomato-passata', 'Passata pomidorowa', amount, 'ml', 'canned_condiments')
 const salt = () => ingredient('salt', 'Sól', 1, 'pinch', 'canned_condiments')
+const salmon = (amount = 300) => ingredient('salmon-fillet', 'Filet z łososia', amount, 'g', 'meat_fish_tofu')
+const pasta = (amount = 160) => ingredient('wheat-pasta', 'Makaron pszenny (suchy)', amount, 'g', 'grains_pantry')
+const bacon = (amount = 100) => ingredient('bacon', 'Boczek', amount, 'g', 'meat_fish_tofu')
+const blackPepper = () => ingredient('black-pepper', 'Pieprz czarny mielony', 1, 'pinch', 'canned_condiments')
 
 export const recipes: Recipe[] = [
   {
@@ -175,6 +179,130 @@ export const recipes: Recipe[] = [
       'Przełóż wszystko do rękawa do pieczenia. Zamknij i przygotuj rękaw zgodnie z instrukcją producenta.',
       'Ułóż w naczyniu żaroodpornym i piecz przez około 60 minut, aż mięso będzie całkowicie upieczone, a warzywa miękkie.',
       'Ostrożnie otwórz rękaw, uważając na parę. Odstaw mięso na kilka minut i podawaj z warzywami.',
+    ],
+  },
+  {
+    id: 'salmon-buckwheat', name: 'Łosoś z brokułem i kaszą',
+    description: 'Pieczony łosoś, brokuł i kasza gryczana z sosem winegret na occie winnym.',
+    mealType: 'lunch', prepTimeMinutes: 35, difficulty: 'easy', basePortions: 2,
+    tags: ['dairy-free', 'high-protein'], imageUrl: '/images/salmon-buckwheat.jpg',
+    ingredients: [
+      salmon(), ingredient('buckwheat', 'Kasza gryczana (sucha)', 150, 'g', 'grains_pantry'),
+      ingredient('broccoli', 'Brokuł', 300, 'g', 'produce'), oil(2),
+      ingredient('wine-vinegar', 'Ocet winny', 1, 'tbsp', 'canned_condiments'),
+      ingredient('mustard', 'Musztarda', 1, 'tsp', 'canned_condiments'),
+      ingredient('honey', 'Miód', 1, 'tsp', 'canned_condiments'), salt(), blackPepper(),
+    ],
+    instructions: [
+      'Rozgrzej piekarnik do 200°C. Ugotuj kaszę gryczaną zgodnie z instrukcją na opakowaniu.',
+      'Łososia podziel na porcje, natrzyj odrobiną oliwy, solą i pieprzem. Ułóż w naczyniu i piecz około 15–20 minut, aż ryba będzie upieczona i łatwo rozdzieli się widelcem.',
+      'Brokuł podziel na różyczki. Ugotuj na parze lub w wodzie przez około 5–7 minut, aż będzie miękki, ale jędrny.',
+      'Wymieszaj pozostałą oliwę z octem winnym, musztardą i miodem, aż powstanie jednolity sos winegret.',
+      'Rozłóż kaszę, brokuł i łososia na talerzach. Polej sosem tuż przed podaniem.',
+    ],
+  },
+  {
+    id: 'creamy-salmon-pasta', name: 'Makaron z łososiem i suszonymi pomidorami',
+    description: 'Makaron w sosie śmietanowym z łososiem, suszonymi pomidorami i szpinakiem.',
+    mealType: 'lunch', prepTimeMinutes: 30, difficulty: 'easy', basePortions: 2,
+    tags: ['high-protein'], imageUrl: '/images/salmon-pasta.jpg',
+    ingredients: [
+      pasta(), salmon(250), ingredient('cream', 'Śmietanka 30%', 150, 'ml', 'dairy'),
+      ingredient('sun-dried-tomatoes', 'Pomidory suszone (po odsączeniu)', 60, 'g', 'canned_condiments'),
+      ingredient('spinach', 'Szpinak', 50, 'g', 'produce'), garlic(), oil(), salt(), blackPepper(),
+    ],
+    instructions: [
+      'Ugotuj makaron zgodnie z instrukcją na opakowaniu. Przed odcedzeniem zachowaj trochę wody z gotowania.',
+      'Łososia pokrój w większą kostkę, suszone pomidory w paski, a czosnek drobno posiekaj.',
+      'Na patelni rozgrzej oliwę i smaż łososia przez około 5–7 minut, delikatnie obracając kawałki. Dodaj czosnek oraz suszone pomidory i smaż jeszcze minutę.',
+      'Wlej śmietankę, dodaj szpinak i gotuj na małym ogniu przez 3–4 minuty. Sprawdź, czy łosoś jest całkowicie ugotowany. Dopraw solą i pieprzem.',
+      'Dodaj makaron i wymieszaj. Jeśli sos jest zbyt gęsty, dolej trochę wody z gotowania makaronu. Podawaj od razu.',
+    ],
+  },
+  {
+    id: 'bolognese-mixed-pasta', name: 'Makaron bolognese 50/50',
+    description: 'Sos boloński z wołowiną. Połowa suchego makaronu pszennego, połowa z ciecierzycy.',
+    mealType: 'lunch', prepTimeMinutes: 60, difficulty: 'easy', basePortions: 2,
+    tags: ['dairy-free', 'high-protein'], imageUrl: '/images/bolognese.jpg',
+    ingredients: [
+      pasta(80), ingredient('chickpea-pasta', 'Makaron z ciecierzycy (suchy)', 80, 'g', 'grains_pantry'),
+      ingredient('ground-beef', 'Mięso mielone wołowe', 300, 'g', 'meat_fish_tofu'),
+      passata(400), onion(), carrot(1), garlic(), oil(), salt(), blackPepper(),
+      ingredient('oregano', 'Oregano suszone', 1, 'tsp', 'canned_condiments'),
+    ],
+    instructions: [
+      'Posiekaj cebulę i czosnek, a marchew zetrzyj na tarce. Na głębokiej patelni rozgrzej oliwę i smaż cebulę z marchewką przez 5 minut.',
+      'Dodaj mięso mielone. Smaż około 8 minut, rozdrabniając je łopatką, aż będzie obsmażone. Dodaj czosnek i wymieszaj.',
+      'Wlej passatę, dodaj oregano, sól i pieprz. Duś na małym ogniu przez około 40 minut. W razie potrzeby dolej trochę wody.',
+      'Odważ równe ilości suchego makaronu pszennego i makaronu z ciecierzycy. Ugotuj je osobno zgodnie z czasami podanymi na opakowaniach — mogą się różnić.',
+      'Połącz oba rodzaje makaronu w proporcji 50/50 i podawaj z sosem bolońskim.',
+    ],
+  },
+  {
+    id: 'bigos', name: 'Bigos',
+    description: 'Kapusta kiszona i świeża, łopatka wieprzowa, kiełbasa, suszone grzyby i śliwki.',
+    mealType: 'lunch', prepTimeMinutes: 150, difficulty: 'medium', basePortions: 4,
+    tags: ['dairy-free', 'one-pot'], imageUrl: '/images/bigos.jpg',
+    imageCredit: {
+      author: 'Aw58', sourceUrl: 'https://commons.wikimedia.org/wiki/File:Bigos_-_2025.02.15.jpg',
+      licenseName: 'CC BY 4.0', licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+    },
+    ingredients: [
+      ingredient('sauerkraut', 'Kapusta kiszona', 500, 'g', 'produce'),
+      ingredient('white-cabbage', 'Kapusta biała', 500, 'g', 'produce'),
+      ingredient('pork-shoulder', 'Łopatka wieprzowa', 400, 'g', 'meat_fish_tofu'),
+      ingredient('smoked-sausage', 'Kiełbasa wędzona', 200, 'g', 'meat_fish_tofu'),
+      ingredient('dried-mushrooms', 'Grzyby suszone', 15, 'g', 'grains_pantry'),
+      ingredient('dried-plums', 'Śliwki suszone', 40, 'g', 'grains_pantry'),
+      ingredient('tomato-paste', 'Koncentrat pomidorowy', 40, 'g', 'canned_condiments'),
+      onion(), oil(), ingredient('bay-leaf', 'Liść laurowy', 2, 'pcs', 'canned_condiments'),
+      ingredient('allspice', 'Ziele angielskie', 4, 'pcs', 'canned_condiments'),
+      ingredient('marjoram', 'Majeranek suszony', 2, 'tsp', 'canned_condiments'),
+      ingredient('salt', 'Sól', 2, 'pinch', 'canned_condiments'), blackPepper(),
+    ],
+    instructions: [
+      'Grzyby zalej ciepłą wodą i odstaw na około 30 minut. Odcedź i pokrój. W tym czasie poszatkuj świeżą kapustę, posiekaj kiszoną kapustę oraz cebulę, a mięso i kiełbasę pokrój w kostkę.',
+      'W dużym garnku rozgrzej oliwę. Obsmaż łopatkę, dodaj cebulę i smaż jeszcze kilka minut.',
+      'Dodaj oba rodzaje kapusty, grzyby, liście laurowe i ziele angielskie. Wlej około 300 ml wody i duś pod przykryciem na małym ogniu przez około 90 minut, mieszając i dolewając wodę w razie potrzeby.',
+      'Dodaj kiełbasę, pokrojone śliwki, koncentrat i majeranek. Duś jeszcze około 20 minut, aż mięso oraz kapusta będą miękkie.',
+      'Dopraw pieprzem i solą po spróbowaniu — kiszona kapusta i kiełbasa są już słone. Usuń liście laurowe oraz ziele angielskie przed podaniem.',
+    ],
+  },
+  {
+    id: 'chicken-garlic-salad', name: 'Sałatka z kurczakiem i sosem czosnkowym',
+    description: 'Kurczak, sałata, ogórek, pomidorki i papryka z jogurtowym sosem czosnkowym.',
+    mealType: 'dinner', prepTimeMinutes: 25, difficulty: 'easy', basePortions: 2,
+    tags: ['quick', 'high-protein'], imageUrl: '/images/chicken-salad.jpg',
+    ingredients: [
+      chicken(), ingredient('mixed-lettuce', 'Miks sałat', 100, 'g', 'produce'),
+      ingredient('cucumber', 'Ogórek', 1, 'pcs', 'produce'),
+      ingredient('cherry-tomatoes', 'Pomidorki koktajlowe', 150, 'g', 'produce'), pepper(),
+      ingredient('natural-yogurt', 'Jogurt naturalny', 150, 'g', 'dairy'), garlic(),
+      ingredient('lemon', 'Cytryna', 0.5, 'pcs', 'produce'), oil(), salt(), blackPepper(),
+    ],
+    instructions: [
+      'Pokrój kurczaka w paski i dopraw solą oraz pieprzem. Usmaż na oliwie przez około 8–10 minut, aż będzie całkowicie ugotowany. Odstaw na chwilę.',
+      'Sałatę umyj i osusz. Ogórek pokrój w półplasterki, paprykę w paski, a pomidorki na połówki.',
+      'Jogurt wymieszaj z przeciśniętym czosnkiem i sokiem z cytryny. Dopraw do smaku.',
+      'Na talerzach ułóż sałatę, warzywa i kurczaka. Polej sosem czosnkowym tuż przed jedzeniem.',
+      'Jeśli przygotowujesz porcje na kolejny dzień, przechowuj w lodówce sałatę z warzywami, kurczaka i sos w osobnych pojemnikach. Połącz przed podaniem.',
+    ],
+  },
+  {
+    id: 'chicken-bacon-skewers', name: 'Szaszłyki z kurczakiem, boczkiem i warzywami',
+    description: 'Kurczak i boczek przeplatane cukinią, papryką i cebulą. Do piekarnika lub na grill.',
+    mealType: 'lunch', prepTimeMinutes: 40, difficulty: 'easy', basePortions: 2,
+    tags: ['dairy-free', 'high-protein'], imageUrl: '/images/skewers.jpg',
+    ingredients: [
+      chicken(), bacon(), ingredient('zucchini', 'Cukinia', 1, 'pcs', 'produce'), pepper(), onion(), garlic(), oil(), salt(), blackPepper(),
+      ingredient('sweet-paprika', 'Papryka słodka mielona', 1, 'tsp', 'canned_condiments'),
+    ],
+    instructions: [
+      'Rozgrzej piekarnik do 210°C lub przygotuj grill. Patyczki do szaszłyków przygotuj zgodnie z instrukcją producenta.',
+      'Kurczaka i boczek pokrój w kostkę, cukinię w grube półplasterki, paprykę w kawałki, a cebulę w ćwiartki rozdzielone na płatki.',
+      'Wymieszaj oliwę z posiekanym czosnkiem, słodką papryką, solą i pieprzem. Natrzyj kurczaka oraz warzywa.',
+      'Na patyczki nabijaj na przemian kurczaka, boczek, cukinię, paprykę i cebulę.',
+      'Piecz na blasze przez około 20–25 minut, obracając w połowie, lub grilluj do pełnego upieczenia mięsa. Sprawdź, czy kurczak w środku jest całkowicie ugotowany, a warzywa miękkie.',
     ],
   },
 ]
