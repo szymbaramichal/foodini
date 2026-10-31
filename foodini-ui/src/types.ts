@@ -1,0 +1,58 @@
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'
+export type RecipeTag = 'low-gi' | 'dairy-free' | 'quick' | 'vegetarian' | 'vegan' | 'high-protein' | 'one-pot'
+export type UnitType = 'g' | 'ml' | 'pcs' | 'tbsp' | 'tsp' | 'clove' | 'can' | 'pack' | 'pinch'
+export type ShopCategory = 'produce' | 'dairy' | 'bakery' | 'meat_fish_tofu' | 'grains_pantry' | 'canned_condiments' | 'other'
+
+export interface IngredientItem {
+  id: string
+  name: string
+  amount: number
+  unit: UnitType
+  category: ShopCategory
+}
+
+export interface Recipe {
+  id: string
+  name: string
+  description: string
+  mealType: MealType
+  prepTimeMinutes: number
+  difficulty: 'easy' | 'medium' | 'hard'
+  basePortions: number
+  tags: RecipeTag[]
+  ingredients: IngredientItem[]
+  instructions: string[]
+  imageUrl: string
+  imagePosition?: string
+}
+
+export interface MealPlanDay {
+  dayIndex: number
+  dayLabel: string
+  recipeId: string
+  servings: number
+  coversDays: number
+  isLeftoverDay: boolean
+  isLocked: boolean
+}
+
+export interface ShoppingItem extends Omit<IngredientItem, 'id'> {
+  id: string
+  ingredientId?: string
+  isChecked: boolean
+  isCustom: boolean
+}
+
+export interface PlanSettings {
+  duration: number
+  people: number
+  batch: boolean
+}
+
+export interface SavedState {
+  version: 1
+  settings: PlanSettings
+  plan: MealPlanDay[]
+  customItems: ShoppingItem[]
+  checked: Record<string, string>
+}
