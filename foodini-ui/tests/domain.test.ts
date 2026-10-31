@@ -1,7 +1,17 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { recipes } from '../src/data/recipes.ts'
-import { aggregateShoppingList, filterRecipes, generatePlan, isBatchLocked, pickRecipe, replacePlanRecipe, retainCheckedItems, shoppingSignature, togglePlanLock } from '../src/domain.ts'
+import {
+  aggregateShoppingList,
+  filterRecipes,
+  generatePlan,
+  isBatchLocked,
+  pickRecipe,
+  replacePlanRecipe,
+  retainCheckedItems,
+  shoppingSignature,
+  togglePlanLock,
+} from '../src/domain.ts'
 import { createInitialState, parseSavedState } from '../src/storage.ts'
 import type { Recipe } from '../src/types.ts'
 
@@ -16,7 +26,10 @@ test('search finds Polish names without accents and also searches ingredients', 
 })
 
 test('selected tags use AND matching and meal types are respected', () => {
-  assert.deepEqual(filterRecipes(recipes, '', ['quick', 'high-protein'], 'dinner').map(recipe => recipe.id), ['konjac-chicken', 'chicken-garlic-salad'])
+  assert.deepEqual(
+    filterRecipes(recipes, '', ['quick', 'high-protein'], 'dinner').map(recipe => recipe.id),
+    ['konjac-chicken', 'chicken-garlic-salad'],
+  )
   assert.equal(filterRecipes(recipes, '', ['vegan', 'high-protein'], '').length, 0)
   assert.ok(filterRecipes(recipes, '', [], 'lunch').every(recipe => recipe.mealType === 'lunch'))
   assert.ok(filterRecipes(recipes, '', [], 'dinner').every(recipe => recipe.mealType === 'dinner'))
@@ -30,8 +43,14 @@ test('random selection stays in the filtered pool and avoids the current recipe 
 
 test('an odd plan ends with a single cooking day and counts batch portions once', () => {
   const plan = generatePlan([recipes[0]], settings, [], fixedRandom)
-  assert.deepEqual(plan.map(day => day.isLeftoverDay), [false, true, false, true, false])
-  assert.deepEqual(plan.map(day => day.servings), [4, 2, 4, 2, 2])
+  assert.deepEqual(
+    plan.map(day => day.isLeftoverDay),
+    [false, true, false, true, false],
+  )
+  assert.deepEqual(
+    plan.map(day => day.servings),
+    [4, 2, 4, 2, 2],
+  )
   const items = aggregateShoppingList(plan, recipes)
   assert.equal(items.find(item => item.ingredientId === 'canned-chickpeas')?.amount, 1200)
   assert.equal(items.find(item => item.ingredientId === 'brown-rice')?.amount, 750)
@@ -43,7 +62,10 @@ test('all supported plan settings preserve batch invariants and exactly cover th
       for (const batch of [false, true]) {
         const plan = generatePlan(recipes, { duration, people, batch }, [], fixedRandom)
         assert.equal(plan.length, duration)
-        assert.equal(plan.filter(day => !day.isLeftoverDay).reduce((total, day) => total + day.servings, 0), duration * people)
+        assert.equal(
+          plan.filter(day => !day.isLeftoverDay).reduce((total, day) => total + day.servings, 0),
+          duration * people,
+        )
         for (const [index, day] of plan.entries()) {
           assert.equal(day.dayIndex, index)
           if (day.isLeftoverDay) {
@@ -52,7 +74,17 @@ test('all supported plan settings preserve batch invariants and exactly cover th
             assert.equal(plan[index - 1].servings, day.servings * 2)
           }
         }
-        assert.doesNotThrow(() => parseSavedState(JSON.stringify({ version: 1, settings: { duration, people, batch }, plan, customItems: [], checked: {} })))
+        assert.doesNotThrow(() =>
+          parseSavedState(
+            JSON.stringify({
+              version: 1,
+              settings: { duration, people, batch },
+              plan,
+              customItems: [],
+              checked: {},
+            }),
+          ),
+        )
       }
     }
   }
@@ -63,19 +95,30 @@ test('locking a leftover protects its whole batch during regeneration and portio
   const locked = togglePlanLock(original, 1)
   assert.equal(isBatchLocked(locked, 0), true)
   assert.equal(locked[1].isLocked, true)
-  const next = generatePlan([recipes[3]], { duration: 6, people: 4, batch: false }, locked, fixedRandom)
+  const next = generatePlan(
+    [recipes[3]],
+    { duration: 6, people: 4, batch: false },
+    locked,
+    fixedRandom,
+  )
   assert.deepEqual(next.slice(0, 2), locked.slice(0, 2))
   assert.ok(next.slice(2).every(day => day.recipeId === recipes[3].id && day.servings === 4))
   assert.throws(() => replacePlanRecipe(locked, 1, recipes[4].id), /odblokuj/)
 })
 
 test('locked batches cannot be cut off by a shorter duration', () => {
-  const plan = togglePlanLock(generatePlan(recipes, { ...settings, duration: 6 }, [], fixedRandom), 4)
+  const plan = togglePlanLock(
+    generatePlan(recipes, { ...settings, duration: 6 }, [], fixedRandom),
+    4,
+  )
   assert.throws(() => generatePlan(recipes, settings, plan, fixedRandom), /odblokuj/)
 })
 
 test('new batches cannot overlap a preserved single-day lock', () => {
-  const plan = togglePlanLock(generatePlan(recipes, { ...settings, batch: false }, [], fixedRandom), 1)
+  const plan = togglePlanLock(
+    generatePlan(recipes, { ...settings, batch: false }, [], fixedRandom),
+    1,
+  )
   const next = generatePlan(recipes, settings, plan, fixedRandom)
   assert.equal(next[0].coversDays, 1)
   assert.deepEqual(next[1], plan[1])
@@ -95,10 +138,15 @@ test('replacing either day updates both batch references without changing portio
 })
 
 test('ingredients with different units are kept separate while matching units are summed', () => {
-  const recipe: Recipe = { ...recipes[0], id: 'test-recipe', basePortions: 2, ingredients: [
-    { id: 'oil', name: 'Oliwa', amount: 10, unit: 'ml', category: 'canned_condiments' },
-    { id: 'oil', name: 'Oliwa', amount: 1, unit: 'tbsp', category: 'canned_condiments' },
-  ] }
+  const recipe: Recipe = {
+    ...recipes[0],
+    id: 'test-recipe',
+    basePortions: 2,
+    ingredients: [
+      { id: 'oil', name: 'Oliwa', amount: 10, unit: 'ml', category: 'canned_condiments' },
+      { id: 'oil', name: 'Oliwa', amount: 1, unit: 'tbsp', category: 'canned_condiments' },
+    ],
+  }
   const plan = generatePlan([recipe], { duration: 3, people: 2, batch: false }, [], fixedRandom)
   const items = aggregateShoppingList(plan, [recipe])
   assert.equal(items.length, 2)
@@ -131,7 +179,15 @@ test('saved state round-trips including custom items and check state', () => {
   const state = createInitialState()
   const item = aggregateShoppingList(state.plan, recipes)[0]
   state.checked[item.id] = shoppingSignature(item)
-  state.customItems.push({ id: 'custom:test', name: 'Kawa', amount: 1, unit: 'pack', category: 'other', isCustom: true, isChecked: true })
+  state.customItems.push({
+    id: 'custom:test',
+    name: 'Kawa',
+    amount: 1,
+    unit: 'pack',
+    category: 'other',
+    isCustom: true,
+    isChecked: true,
+  })
   assert.deepEqual(parseSavedState(JSON.stringify(state)), state)
 })
 
@@ -146,7 +202,20 @@ test('invalid storage cannot introduce unknown recipes, incomplete batches, or i
   truncatedBatch.plan.pop()
   truncatedBatch.plan.pop()
   assert.throws(() => parseSavedState(JSON.stringify(truncatedBatch)))
-  const invalidItem = { ...createInitialState(), customItems: [{ id: 'custom:x', name: 'Kawa', amount: 1, unit: '__proto__', category: 'other', isChecked: false, isCustom: true }] }
+  const invalidItem = {
+    ...createInitialState(),
+    customItems: [
+      {
+        id: 'custom:x',
+        name: 'Kawa',
+        amount: 1,
+        unit: '__proto__',
+        category: 'other',
+        isChecked: false,
+        isCustom: true,
+      },
+    ],
+  }
   assert.throws(() => parseSavedState(JSON.stringify(invalidItem)))
 })
 
@@ -158,9 +227,13 @@ test('the seed catalog has valid quantities, identifiers, tags, and Polish instr
     assert.ok(['lunch', 'dinner'].includes(recipe.mealType))
     assert.ok(recipe.instructions.length >= 4)
     assert.ok(recipe.ingredients.every(item => item.amount > 0))
-    assert.equal(new Set(recipe.ingredients.map(item => `${item.id}:${item.unit}`)).size, recipe.ingredients.length)
+    assert.equal(
+      new Set(recipe.ingredients.map(item => `${item.id}:${item.unit}`)).size,
+      recipe.ingredients.length,
+    )
     if (recipe.tags.includes('quick')) assert.ok(recipe.prepTimeMinutes <= 25)
-    if (recipe.tags.includes('vegan')) assert.ok(recipe.tags.includes('vegetarian') && recipe.tags.includes('dairy-free'))
+    if (recipe.tags.includes('vegan'))
+      assert.ok(recipe.tags.includes('vegetarian') && recipe.tags.includes('dairy-free'))
   }
 })
 

@@ -1,7 +1,15 @@
 export type MealType = 'lunch' | 'dinner'
-export type RecipeTag = 'low-gi' | 'dairy-free' | 'quick' | 'vegetarian' | 'vegan' | 'high-protein' | 'one-pot'
+export type RecipeTag =
+  'low-gi' | 'dairy-free' | 'quick' | 'vegetarian' | 'vegan' | 'high-protein' | 'one-pot'
 export type UnitType = 'g' | 'ml' | 'pcs' | 'tbsp' | 'tsp' | 'clove' | 'can' | 'pack' | 'pinch'
-export type ShopCategory = 'produce' | 'dairy' | 'bakery' | 'meat_fish_tofu' | 'grains_pantry' | 'canned_condiments' | 'other'
+export type ShopCategory =
+  | 'produce'
+  | 'dairy'
+  | 'bakery'
+  | 'meat_fish_tofu'
+  | 'grains_pantry'
+  | 'canned_condiments'
+  | 'other'
 
 export interface IngredientItem {
   id: string
