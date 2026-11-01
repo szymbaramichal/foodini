@@ -9,6 +9,8 @@ export type IconName =
   | 'unlock'
   | 'trash'
   | 'share'
+  | 'cloud'
+  | 'sync'
 
 const paths: Record<IconName, string> = {
   recipes: 'M4 3h4v7a2 2 0 0 1-4 0V3Zm2 9v9M14 3v7h5V3m-2.5 7v11M6 3v6',
@@ -21,6 +23,8 @@ const paths: Record<IconName, string> = {
   unlock: 'M6 10h12a1 1 0 0 1 1 1v9H5v-9a1 1 0 0 1 1-1Zm2 0V6a4 4 0 0 1 7.5-2m-3.5 10v2',
   trash: 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7',
   share: 'M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13',
+  cloud: 'M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10Z',
+  sync: 'M20 11a8.1 8.1 0 0 0-15.5-2m-.5-5v5h5M4 13a8.1 8.1 0 0 0 15.5 2m.5 5v-5h-5',
 }
 
 export function Icon({

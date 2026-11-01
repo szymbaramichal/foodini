@@ -84,9 +84,16 @@ export function SyncDialog({
           Współdziel bieżący plan posiłków i listę zakupów z drugim urządzeniem lub domownikiem.
         </p>
 
-        <div className="my-4 flex items-center gap-2.5 rounded-md bg-foodini-subtle p-2.5 px-3.5 text-sm">
-          <span className={`status-dot dot-${status}`} />
-          <span>
+        <div
+          className={`my-4 rounded-md border p-3 px-3.5 text-sm ${
+            status === 'error'
+              ? 'border-red-200 bg-red-50 text-red-800'
+              : status === 'syncing'
+                ? 'border-amber-200 bg-amber-50 text-amber-900'
+                : 'border-foodini-border bg-foodini-subtle text-foodini-text'
+          }`}
+        >
+          <span className="font-medium">
             {status === 'idle' && 'Połączono i zsynchronizowano z chmurą'}
             {status === 'syncing' && 'Trwa synchronizacja danych...'}
             {status === 'error' && 'Błąd połączenia lub synchronizacji'}

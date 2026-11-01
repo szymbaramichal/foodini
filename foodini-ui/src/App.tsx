@@ -55,8 +55,8 @@ const syncLabels: Record<SyncStatus, { label: string; tooltip: string }> = {
     tooltip: 'Nie udało się połączyć z bazą. Kliknij, aby sprawdzić.',
   },
   local: {
-    label: 'Lokalnie',
-    tooltip: 'Dane zapisywane tylko w tej przeglądarce. Kliknij, aby włączyć synchronizację.',
+    label: 'Synchronizacja',
+    tooltip: 'Współdziel plan i listę zakupów z domownikiem lub innym urządzeniem.',
   },
 }
 
@@ -356,13 +356,18 @@ function App() {
             </button>
             <button
               type="button"
-              className="inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-full border border-foodini-border bg-foodini-subtle px-3 py-1 text-xs text-foodini-muted transition hover:bg-brand-light hover:text-brand sm:text-[13px]"
+              className={`inline-flex min-h-[44px] cursor-pointer items-center rounded-md border px-3 py-1.5 text-xs font-medium transition focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 sm:text-[13px] ${
+                syncStatus === 'error'
+                  ? 'border-red-300 bg-red-50 text-red-700 hover:bg-red-100'
+                  : syncStatus === 'syncing'
+                    ? 'border-amber-300 bg-amber-50 text-amber-800'
+                    : 'border-foodini-border bg-white text-foodini-muted hover:border-brand/40 hover:bg-foodini-subtle hover:text-brand'
+              }`}
               onClick={() => setShowSyncDialog(true)}
               title={syncLabels[syncStatus].tooltip}
               aria-label={`Synchronizacja: ${syncLabels[syncStatus].label}`}
             >
-              <span className={`status-dot dot-${syncStatus}`} />
-              <span>{syncLabels[syncStatus].label}</span>
+              {syncLabels[syncStatus].label}
             </button>
           </div>
           <nav className="flex gap-1 max-sm:w-full" aria-label="Nawigacja główna">
