@@ -189,7 +189,8 @@ export function PlannerView({
           Ułóż nowy plan
         </button>
         <p className="col-span-full text-[13px] leading-relaxed text-foodini-muted">
-          Plan układa obiad i kolację na każdy dzień. Zablokowane posiłki zachowają dania i porcje.
+          Plan układa obiad i kolację na każdy dzień. Obiady można przygotowywać na dwa dni, a
+          kolacje są zawsze na jeden dzień. Zablokowane posiłki zachowają dania i porcje.
         </p>
       </section>
 

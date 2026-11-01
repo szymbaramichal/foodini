@@ -13,10 +13,12 @@ This README is the single source of truth for the product concept, domain rules,
 
 The frontend in `foodini-ui/` is a working browser-only proof of concept with a Polish interface. It includes:
 
-- Thirteen low-GI recipes with measured ingredients and Polish cooking instructions: chickpea curry with brown rice, butter chicken, konjac noodles with chicken and peanut-soy sauce, turkey meatballs, beef stew, a vegetable bake, roasted pork loin, salmon with broccoli and buckwheat in vinaigrette, creamy salmon pasta with sun-dried tomatoes, bolognese with equal dry weights of wheat and chickpea pasta, bigos, chicken salad with garlic sauce, and chicken-and-bacon skewers with zucchini, pepper, and onion.
+- Twenty-three low-GI recipes (13 lunches and 10 dinners) with measured ingredients and Polish cooking instructions:
+  - **Lunches (`Obiady`)**: chickpea curry with brown rice, butter chicken, meatballs in dill sauce, meatballs in tomato sauce, beef stew with bacon and vegetables, roasted chicken thighs with vegetables in a bag, salmon with broccoli and millet, creamy salmon pasta with sun-dried tomatoes, mushroom pasta in cream sauce, bolognese with zucchini and mixed pasta 50/50, chicken skewers with garlic dip, chicken and vegetable stir-fry with konjac noodles, and grilled chicken salad with garlic dressing.
+  - **Dinners (`Kolacje`)**: ham and vegetable sandwiches, keto waffles with berries and whipped cream, kefir pancakes with apple and banana, tuna and egg paste sandwiches, avocado paste and cherry tomato sandwiches, feta salad with mustard vinaigrette, grilled halloumi salad with honey-lemon dressing, smoked salmon salad with dill, roasted vegetable cream soup with ricotta and low-GI pasta, and homemade smash burgers.
 - Recipe search by name or ingredient (including searches without Polish accents), organized into two main tabs: dinners and lunches (`Kolacje` and `Obiady`). All recipes are low GI, so tag filter buttons are omitted from the main page.
 - Recipe details with ingredient quantities scaled to the selected portions.
-- A 3–7 day planner with two meal slots per day (lunch and dinner), 1–8 portions per meal, optional two-day batches, meal replacement, and locks that preserve a whole batch.
+- A 3–7 day planner with two meal slots per day (lunch and dinner), 1–8 portions per meal, optional two-day batches for lunches (dinners are always made fresh for one day), meal replacement, and locks that preserve a whole batch.
 - Shopping lists grouped by aisle, checkboxes, custom products with quantities and categories, clipboard copying, Web Share API export (to Google Keep, Apple Notes, or messaging), and text-file download.
 - Browser `localStorage` persistence with optional cross-device cloud synchronization backed by Cloudflare Pages Functions and Cloudflare D1 (SQLite), secured with a household sync key and protected against database flooding.
 - Responsive layouts with three simple tabs in a sticky header, sync status pill indicator, compact recipe rows, and a shopping checklist. The custom-product form expands under `Dodaj produkt`.
@@ -48,7 +50,7 @@ The existing stack is React, TypeScript, Vite, Tailwind CSS, and ESLint. Depende
 - Let users choose a recipe or use `Wylosuj posiłek` to randomly select one from the active tab matching any search query. Show an empty state when nothing matches.
 - Show recipe details in a modal, drawer, or dedicated view with ingredients, a portion selector, and cooking instructions.
 - Generate a meal plan for **5 days by default**, adjustable from **3 to 7 days**, planning two meals per day: **Obiad** (lunch) and **Kolacja** (dinner), with a configurable number of portions per meal.
-- Support optional **two-day batch cooking**: prepare enough portions on the first day, and mark the following day as `Porcja z wczoraj`.
+- Support optional **two-day batch cooking** for lunches: prepare enough portions on the first day, and mark the following day as `Porcja z wczoraj`. Dinners are always prepared fresh for a single day.
 - Allow users to lock a planned meal slot so regeneration preserves it, and replace or re-roll an individual unlocked meal.
 
 ### Shopping list preparation
@@ -139,7 +141,7 @@ Each planned day contains two meal slots: lunch and dinner (no breakfasts).
 | `lunch`    | `MealSlot` | Planned lunch meal slot                        |
 | `dinner`   | `MealSlot` | Planned dinner meal slot                       |
 
-On a cooking day, `servings` already includes all portions for `coversDays`; do not multiply by `coversDays` again. Skip leftover entries when generating ingredient totals. A leftover entry must refer to the same recipe as its cooking day. Replacing or regenerating either day must keep the batch consistent and respect locks on both days. A two-day batch must fit within the plan duration. Lunch and dinner slots maintain independent batches, locks, and rerolls.
+On a cooking day, `servings` already includes all portions for `coversDays`; do not multiply by `coversDays` again. Skip leftover entries when generating ingredient totals. A leftover entry must refer to the same recipe as its cooking day. Replacing or regenerating either day must keep the batch consistent and respect locks on both days. A two-day batch must fit within the plan duration. Two-day batch cooking applies exclusively to lunches; dinners are always prepared fresh for a single day (`coversDays = 1`, `isLeftoverDay = false`). Lunch and dinner slots maintain independent locks and rerolls.
 
 ### Shopping item (`ShoppingItem`)
 
@@ -227,7 +229,7 @@ After the first deployment, check recipe images, open a recipe, generate a plan,
 | `foodini-ui/src/App.tsx`           | Connected recipe, planner, and shopping views                                                           |
 | `foodini-ui/src/components/`       | Header, recipe details, view components (recipes, planner, shopping), sync dialog, and shared SVG icons |
 | `foodini-ui/src/useSync.ts`        | React hook orchestrating Cloudflare D1 household sync and status                                        |
-| `foodini-ui/src/data/recipes.ts`   | Thirteen Polish recipes, tag labels, units, and shopping categories                                     |
+| `foodini-ui/src/data/recipes.ts`   | Twenty-three Polish recipes (13 lunches and 10 dinners), tag labels, units, and shopping categories     |
 | `foodini-ui/src/types.ts`          | Domain types                                                                                            |
 | `foodini-ui/src/domain.ts`         | Filtering, plan generation, batch operations, scaling, and aggregation                                  |
 | `foodini-ui/src/storage.ts`        | Initial sample state and validation of persisted data                                                   |

@@ -20,15 +20,22 @@ const fixedRandom = () => 0
 
 test('search finds Polish names without accents and also searches ingredients', () => {
   assert.equal(filterRecipes(recipes, 'wolowy', [], '')[0]?.id, 'beef-stew')
-  assert.equal(filterRecipes(recipes, 'REKAWA', [], '')[0]?.id, 'roast-pork')
+  assert.equal(filterRecipes(recipes, 'REKAWA', [], '')[0]?.id, 'roast-chicken')
   assert.equal(filterRecipes(recipes, 'maslo orzechowe', [], '')[0]?.id, 'konjac-chicken')
-  assert.equal(filterRecipes(recipes, '  CIECIERZYCY  ', [], '').length, 2)
+  assert.equal(filterRecipes(recipes, '  CIECIERZYCY  ', [], '').length, 4)
 })
 
 test('selected tags use AND matching and meal types are respected', () => {
   assert.deepEqual(
     filterRecipes(recipes, '', ['quick', 'high-protein'], 'dinner').map(recipe => recipe.id),
-    ['konjac-chicken', 'chicken-garlic-salad'],
+    [
+      'veggie-ham-sandwiches',
+      'keto-waffles-berries',
+      'tuna-paste-sandwiches',
+      'halloumi-salad',
+      'smoked-salmon-salad',
+      'homemade-smash-burgers',
+    ],
   )
   assert.equal(filterRecipes(recipes, '', ['vegan', 'high-protein'], '').length, 0)
   assert.ok(filterRecipes(recipes, '', [], 'lunch').every(recipe => recipe.mealType === 'lunch'))
@@ -53,11 +60,15 @@ test('an odd plan ends with a single cooking day and counts batch portions once'
   )
   assert.deepEqual(
     plan.map(day => day.dinner.isLeftoverDay),
-    [false, true, false, true, false],
+    [false, false, false, false, false],
   )
   assert.deepEqual(
     plan.map(day => day.dinner.servings),
-    [4, 2, 4, 2, 2],
+    [2, 2, 2, 2, 2],
+  )
+  assert.deepEqual(
+    plan.map(day => day.dinner.coversDays),
+    [1, 1, 1, 1, 1],
   )
   const items = aggregateShoppingList(plan, recipes)
   assert.ok(items.length > 0)
@@ -83,13 +94,15 @@ test('all supported plan settings preserve batch invariants and exactly cover th
         )
         for (const [index, day] of plan.entries()) {
           assert.equal(day.dayIndex, index)
-          for (const mealType of ['lunch', 'dinner'] as const) {
-            const slot = day[mealType]
-            if (slot.isLeftoverDay) {
-              assert.equal(plan[index - 1][mealType].coversDays, 2)
-              assert.equal(plan[index - 1][mealType].recipeId, slot.recipeId)
-              assert.equal(plan[index - 1][mealType].servings, slot.servings * 2)
-            }
+          assert.equal(day.dinner.coversDays, 1)
+          assert.equal(day.dinner.isLeftoverDay, false)
+          assert.equal(day.dinner.servings, people)
+
+          const slot = day.lunch
+          if (slot.isLeftoverDay) {
+            assert.equal(plan[index - 1].lunch.coversDays, 2)
+            assert.equal(plan[index - 1].lunch.recipeId, slot.recipeId)
+            assert.equal(plan[index - 1].lunch.servings, slot.servings * 2)
           }
         }
         assert.doesNotThrow(() =>
@@ -120,6 +133,35 @@ test('locking a leftover protects its whole batch during regeneration and portio
     locked.slice(0, 2).map(d => d.lunch),
   )
   assert.throws(() => replacePlanMeal(locked, 1, 'lunch', recipes[4].id), /odblokuj/)
+})
+
+test('locking a dinner protects that single day while remaining days can regenerate', () => {
+  const original = generatePlan(recipes, settings, [], fixedRandom)
+  const locked = togglePlanLock(original, 1, 'dinner')
+  assert.equal(locked[1].dinner.isLocked, true)
+  assert.equal(locked[0].dinner.isLocked, false)
+  assert.equal(isBatchLocked(locked, 1, 'dinner'), true)
+  assert.equal(isBatchLocked(locked, 0, 'dinner'), false)
+  const next = generatePlan(recipes, { duration: 5, people: 2, batch: true }, locked, () => 0.5)
+  assert.equal(next[1].dinner.recipeId, locked[1].dinner.recipeId)
+  assert.equal(next[1].dinner.isLocked, true)
+  assert.equal(next[1].dinner.coversDays, 1)
+  assert.equal(next[1].dinner.isLeftoverDay, false)
+})
+
+test('dinners are only planned for one day and use single-day ingredient amounts in shopping list', () => {
+  const lunch = recipes.find(r => r.mealType === 'lunch')!
+  const dinner = recipes.find(r => r.id === 'veggie-ham-sandwiches')!
+  const plan = generatePlan(
+    [lunch, dinner],
+    { duration: 3, people: 2, batch: true },
+    [],
+    fixedRandom,
+  )
+  assert.ok(plan.every(day => !day.dinner.isLeftoverDay && day.dinner.coversDays === 1))
+  const items = aggregateShoppingList(plan, [lunch, dinner])
+  // veggie-ham-sandwiches has 100g ham for 2 portions. 3 single-day dinners for 2 people = 300g ham
+  assert.equal(items.find(item => item.ingredientId === 'sliced-ham')?.amount, 300)
 })
 
 test('locked batches cannot be cut off by a shorter duration', () => {
@@ -239,6 +281,9 @@ test('invalid storage cannot introduce unknown recipes, incomplete batches, or i
   truncatedBatch.plan.pop()
   truncatedBatch.plan.pop()
   assert.throws(() => parseSavedState(JSON.stringify(truncatedBatch)))
+  const invalidDinnerBatch = createInitialState()
+  invalidDinnerBatch.plan[0].dinner.coversDays = 2
+  assert.throws(() => parseSavedState(JSON.stringify(invalidDinnerBatch)), /Invalid meal slot/)
   const invalidItem = {
     ...createInitialState(),
     customItems: [
@@ -257,7 +302,7 @@ test('invalid storage cannot introduce unknown recipes, incomplete batches, or i
 })
 
 test('the seed catalog has valid quantities, identifiers, tags, and Polish instructions', () => {
-  assert.equal(recipes.length, 13)
+  assert.equal(recipes.length, 23)
   assert.equal(new Set(recipes.map(recipe => recipe.id)).size, recipes.length)
   for (const recipe of recipes) {
     assert.ok(recipe.basePortions > 0)
@@ -277,7 +322,7 @@ test('the seed catalog has valid quantities, identifiers, tags, and Polish instr
 
 test('mixed-pasta bolognese keeps both pasta types separate and in equal dry weights in a batch plan', () => {
   const recipe = recipes.find(recipe => recipe.id === 'bolognese-mixed-pasta')!
-  const dinner = recipes.find(recipe => recipe.id === 'konjac-chicken')!
+  const dinner = recipes.find(recipe => recipe.id === 'veggie-ham-sandwiches')!
   const plan = generatePlan(
     [recipe, dinner],
     { duration: 3, people: 2, batch: true },
@@ -294,9 +339,9 @@ test('mixed-pasta bolognese keeps both pasta types separate and in equal dry wei
   assert.equal(chickpeaPasta.unit, 'g')
 })
 
-test('four-serving bigos scales to a two-person plan without counting leftovers twice', () => {
-  const recipe = recipes.find(recipe => recipe.id === 'bigos')!
-  const dinner = recipes.find(recipe => recipe.id === 'konjac-chicken')!
+test('four-serving beef stew scales to a two-person plan without counting leftovers twice', () => {
+  const recipe = recipes.find(recipe => recipe.id === 'beef-stew')!
+  const dinner = recipes.find(recipe => recipe.id === 'veggie-ham-sandwiches')!
   const plan = generatePlan(
     [recipe, dinner],
     { duration: 3, people: 2, batch: true },
@@ -304,7 +349,7 @@ test('four-serving bigos scales to a two-person plan without counting leftovers 
     fixedRandom,
   )
   const items = aggregateShoppingList(plan, [recipe, dinner])
-  assert.equal(items.find(item => item.ingredientId === 'sauerkraut')?.amount, 750)
-  assert.equal(items.find(item => item.ingredientId === 'pork-shoulder')?.amount, 600)
+  assert.equal(items.find(item => item.ingredientId === 'beef-stew')?.amount, 1200)
+  assert.equal(items.find(item => item.ingredientId === 'bacon')?.amount, 450)
   assert.doesNotThrow(() => parseSavedState(JSON.stringify({ ...createInitialState(), plan })))
 })

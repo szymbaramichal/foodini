@@ -136,10 +136,20 @@ export function generatePlan(
   }
 
   const previousLunches = previous.map(d => d.lunch)
-  const previousDinners = previous.map(d => d.dinner)
+  const previousDinners = previous.map(d => ({
+    ...d.dinner,
+    coversDays: 1,
+    isLeftoverDay: false,
+    servings: d.dinner.coversDays === 2 ? Math.round(d.dinner.servings / 2) : d.dinner.servings,
+  }))
 
   const lunches = generateSlotPlan(lunchPool, settings, previousLunches, random)
-  const dinners = generateSlotPlan(dinnerPool, settings, previousDinners, random)
+  const dinners = generateSlotPlan(
+    dinnerPool,
+    { ...settings, batch: false },
+    previousDinners,
+    random,
+  )
 
   return Array.from({ length: settings.duration }, (_, index) => ({
     dayIndex: index,

@@ -67,7 +67,8 @@ export function parseSavedState(text: string): SavedState {
         slot.servings > 16 ||
         (slot.coversDays !== 1 && slot.coversDays !== 2) ||
         typeof slot.isLeftoverDay !== 'boolean' ||
-        typeof slot.isLocked !== 'boolean'
+        typeof slot.isLocked !== 'boolean' ||
+        (mealType === 'dinner' && (slot.coversDays !== 1 || slot.isLeftoverDay))
       )
         throw new Error('Invalid meal slot')
 
