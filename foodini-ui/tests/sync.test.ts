@@ -156,6 +156,54 @@ test('handleSyncPost validates payload and stores state in D1', async () => {
   assert.deepEqual(getBody.state, state)
 })
 
+test('handleSyncGet migrates legacy recipes stored in D1 database', async () => {
+  const db = new MockD1()
+  const env: SyncEnv = { DB: db }
+  const legacyState = createInitialState()
+  legacyState.plan[0].lunch.recipeId = 'turkey-meatballs'
+  if (legacyState.plan[0].lunch.coversDays === 2) {
+    legacyState.plan[1].lunch.recipeId = 'turkey-meatballs'
+  }
+  legacyState.plan[0].dinner.recipeId = 'vegetable-bake'
+
+  const householdId = await hashHouseholdKey('sekret123')
+  db.store.set(householdId, {
+    state_json: JSON.stringify(legacyState),
+    version: 2,
+    updated_at: 1000,
+  })
+
+  const req = new Request('https://foodini.pages.dev/api/sync', {
+    headers: { 'x-household-key': 'sekret123' },
+  })
+  const res = await handleSyncGet(req, env)
+  assert.equal(res.status, 200)
+  const body = (await res.json()) as { exists: boolean; state: SavedState; updatedAt: number }
+  assert.equal(body.exists, true)
+  assert.equal(body.state.plan[0].lunch.recipeId, 'tomato-meatballs')
+  assert.equal(body.state.plan[0].dinner.recipeId, 'vegetable-cream-soup')
+})
+
+test('handleSyncGet recovers gracefully from unparseable corrupted state in D1', async () => {
+  const db = new MockD1()
+  const env: SyncEnv = { DB: db }
+  const householdId = await hashHouseholdKey('sekret123')
+  db.store.set(householdId, {
+    state_json: '{ corrupted json',
+    version: 2,
+    updated_at: 1000,
+  })
+
+  const req = new Request('https://foodini.pages.dev/api/sync', {
+    headers: { 'x-household-key': 'sekret123' },
+  })
+  const res = await handleSyncGet(req, env)
+  assert.equal(res.status, 200)
+  const body = (await res.json()) as { exists: boolean; state: unknown; updatedAt: number }
+  assert.equal(body.exists, false)
+  assert.equal(body.state, null)
+})
+
 test('handleSyncPost rejects invalid state payload', async () => {
   const db = new MockD1()
   const env: SyncEnv = { DB: db }

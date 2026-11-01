@@ -205,8 +205,12 @@ export function PlannerView({
 
       <div className="space-y-4">
         {plan.map((day, index) => {
-          const lunchRecipe = allRecipes.find(recipe => recipe.id === day.lunch.recipeId)!
-          const dinnerRecipe = allRecipes.find(recipe => recipe.id === day.dinner.recipeId)!
+          const fallbackLunch = allRecipes.find(recipe => recipe.mealType === 'lunch')!
+          const fallbackDinner = allRecipes.find(recipe => recipe.mealType === 'dinner')!
+          const lunchRecipe =
+            allRecipes.find(recipe => recipe.id === day.lunch.recipeId) || fallbackLunch
+          const dinnerRecipe =
+            allRecipes.find(recipe => recipe.id === day.dinner.recipeId) || fallbackDinner
           const lunchLocked = isBatchLocked(plan, index, 'lunch')
           const dinnerLocked = isBatchLocked(plan, index, 'dinner')
 

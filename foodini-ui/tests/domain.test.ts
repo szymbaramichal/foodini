@@ -301,6 +301,31 @@ test('invalid storage cannot introduce unknown recipes, incomplete batches, or i
   assert.throws(() => parseSavedState(JSON.stringify(invalidItem)))
 })
 
+test('legacy and removed recipes in saved state are migrated cleanly to valid current recipes', () => {
+  const legacyState = createInitialState()
+  legacyState.plan[0].lunch.recipeId = 'turkey-meatballs'
+  if (legacyState.plan[0].lunch.coversDays === 2) {
+    legacyState.plan[1].lunch.recipeId = 'turkey-meatballs'
+  }
+  legacyState.plan[0].dinner.recipeId = 'vegetable-bake'
+  legacyState.plan[1].dinner.recipeId = 'konjac-chicken'
+  legacyState.plan[2].lunch.recipeId = 'salmon-buckwheat'
+  if (legacyState.plan[2].lunch.coversDays === 2) {
+    legacyState.plan[3].lunch.recipeId = 'salmon-buckwheat'
+  }
+  legacyState.plan[2].dinner.recipeId = 'chicken-garlic-salad'
+
+  const parsed = parseSavedState(JSON.stringify(legacyState))
+  assert.equal(parsed.plan[0].lunch.recipeId, 'tomato-meatballs')
+  if (legacyState.plan[0].lunch.coversDays === 2) {
+    assert.equal(parsed.plan[1].lunch.recipeId, 'tomato-meatballs')
+  }
+  assert.equal(parsed.plan[0].dinner.recipeId, 'vegetable-cream-soup')
+  assert.equal(parsed.plan[1].dinner.recipeId, 'halloumi-salad')
+  assert.equal(parsed.plan[2].lunch.recipeId, 'salmon-broccoli')
+  assert.equal(parsed.plan[2].dinner.recipeId, 'feta-salad')
+})
+
 test('the seed catalog has valid quantities, identifiers, tags, and Polish instructions', () => {
   assert.equal(recipes.length, 23)
   assert.equal(new Set(recipes.map(recipe => recipe.id)).size, recipes.length)

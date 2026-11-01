@@ -22,6 +22,26 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const isPositiveInteger = (value: unknown): value is number =>
   Number.isInteger(value) && Number(value) > 0
 
+export const legacyRecipeMap: Record<string, { lunch: string; dinner: string }> = {
+  'turkey-meatballs': { lunch: 'tomato-meatballs', dinner: 'homemade-smash-burgers' },
+  'vegetable-bake': { lunch: 'mushroom-pasta', dinner: 'vegetable-cream-soup' },
+  'roast-pork': { lunch: 'roast-chicken', dinner: 'homemade-smash-burgers' },
+  'salmon-buckwheat': { lunch: 'salmon-broccoli', dinner: 'smoked-salmon-salad' },
+  bigos: { lunch: 'beef-stew', dinner: 'homemade-smash-burgers' },
+  'chicken-garlic-salad': { lunch: 'chicken-salad', dinner: 'feta-salad' },
+  'chicken-bacon-skewers': {
+    lunch: 'chicken-skewers-garlic-sauce',
+    dinner: 'halloumi-salad',
+  },
+  'konjac-chicken': { lunch: 'konjac-chicken', dinner: 'halloumi-salad' },
+}
+
+export function migrateLegacyRecipeId(recipeId: string, mealType: MealType): string {
+  const legacy = legacyRecipeMap[recipeId]
+  if (legacy) return legacy[mealType]
+  return recipeId
+}
+
 export function parseSavedState(text: string): SavedState {
   const value: unknown = JSON.parse(text)
   if (
@@ -44,6 +64,18 @@ export function parseSavedState(text: string): SavedState {
     plan.length > 7
   )
     throw new Error('Invalid settings')
+
+  for (const day of plan) {
+    if (isRecord(day)) {
+      if (isRecord(day.lunch) && typeof day.lunch.recipeId === 'string') {
+        day.lunch.recipeId = migrateLegacyRecipeId(day.lunch.recipeId, 'lunch')
+      }
+      if (isRecord(day.dinner) && typeof day.dinner.recipeId === 'string') {
+        day.dinner.recipeId = migrateLegacyRecipeId(day.dinner.recipeId, 'dinner')
+      }
+    }
+  }
+
   for (const [index, day] of plan.entries()) {
     if (
       !isRecord(day) ||

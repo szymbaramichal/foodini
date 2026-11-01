@@ -70,8 +70,12 @@ export async function fetchRemoteState(syncKey: string): Promise<RemoteSyncRespo
     return { exists: false, state: null, updatedAt: 0 }
   }
 
-  const validated = parseSavedState(JSON.stringify(data.state))
-  return { exists: true, state: validated, updatedAt: data.updatedAt }
+  try {
+    const validated = parseSavedState(JSON.stringify(data.state))
+    return { exists: true, state: validated, updatedAt: data.updatedAt }
+  } catch {
+    return { exists: false, state: null, updatedAt: 0 }
+  }
 }
 
 export async function pushRemoteState(

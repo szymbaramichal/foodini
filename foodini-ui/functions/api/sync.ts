@@ -94,7 +94,9 @@ export async function handleSyncGet(request: Request, env: SyncEnv): Promise<Res
     const state = parseSavedState(row.state_json)
     return jsonResponse({ exists: true, state, updatedAt: row.updated_at }, 200)
   } catch {
-    return jsonResponse({ error: 'Błąd deserializacji zapisanego planu' }, 500)
+    // If the saved state cannot be parsed or validated (e.g. outdated incompatible schema),
+    // treat it as non-existent so the client can safely re-seed from local state rather than breaking with 500.
+    return jsonResponse({ exists: false, state: null, updatedAt: 0 }, 200)
   }
 }
 
