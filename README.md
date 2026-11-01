@@ -17,11 +17,11 @@ The frontend in `foodini-ui/` is a working browser-only proof of concept with a 
 - Recipe search by name or ingredient (including searches without Polish accents), meal-type filters, tag filters, and random selection from the matching recipes.
 - Recipe details with ingredient quantities scaled to the selected portions.
 - A 3–7 day planner with 1–8 portions per day, optional two-day batches, meal replacement, and locks that preserve a whole batch.
-- Shopping lists grouped by aisle, checkboxes, custom products with quantities and categories, clipboard copying, and text-file download.
-- Browser `localStorage` persistence, validation of saved data, and recovery to the sample plan if saved data is invalid.
-- Responsive layouts with three simple tabs in a sticky header, compact recipe rows, and a shopping checklist. The custom-product form expands under `Dodaj produkt`.
+- Shopping lists grouped by aisle, checkboxes, custom products with quantities and categories, clipboard copying, Web Share API export (to Google Keep, Apple Notes, or messaging), and text-file download.
+- Browser `localStorage` persistence with optional cross-device cloud synchronization backed by Cloudflare Pages Functions and Cloudflare D1 (SQLite), secured with a household sync key and protected against database flooding.
+- Responsive layouts with three simple tabs in a sticky header, sync status pill indicator, compact recipe rows, and a shopping checklist. The custom-product form expands under `Dodaj produkt`.
 
-The first visit starts with a sample five-day plan for two people. There is no backend, account system, or cross-device synchronization. The data stays in the current browser and origin; clearing browser storage removes it. All photos and fonts are served locally. Photos illustrate the dishes and do not show the exact recipes.
+The first visit starts with a sample five-day plan for two people. Without cloud synchronization configured, data stays in the current browser and origin; clearing browser storage removes it. When a household sync key is configured in the header sync settings, the plan and shopping list synchronize seamlessly across devices via Cloudflare D1. All photos and fonts are served locally. Photos illustrate the dishes and do not show the exact recipes.
 
 For this POC, selected tags use **AND** matching. When a plan change alters an ingredient's required quantity, that ingredient becomes unchecked; unchanged quantities keep their checkmarks, and custom items remain. Changes to planner settings take effect when the user chooses `Ułóż nowy plan`; locked batches retain their original recipes and portions. The portion selector in recipe details previews ingredient scaling; adding a recipe to the plan uses that plan slot's portions.
 
@@ -215,16 +215,20 @@ After the first deployment, check recipe images, open a recipe, generate a plan,
 
 ## POC source map and assets
 
-| Path                             | Responsibility                                                                         |
-| -------------------------------- | -------------------------------------------------------------------------------------- |
-| `foodini-ui/src/App.tsx`         | Connected recipe, planner, and shopping views                                          |
-| `foodini-ui/src/components/`     | Recipe dialog and shared SVG icons                                                     |
-| `foodini-ui/src/data/recipes.ts` | Thirteen Polish recipes, tag labels, units, and shopping categories                    |
-| `foodini-ui/src/types.ts`        | Domain types                                                                           |
-| `foodini-ui/src/domain.ts`       | Filtering, plan generation, batch operations, scaling, and aggregation                 |
-| `foodini-ui/src/storage.ts`      | Initial sample state and validation of persisted data                                  |
-| `foodini-ui/public/images/`      | Local illustrative food photos                                                         |
-| `foodini-ui/public/fonts/`       | Bundled fonts and their OFL licenses; the simplified interface uses DM Sans throughout |
+| Path                               | Responsibility                                                                         |
+| ---------------------------------- | -------------------------------------------------------------------------------------- |
+| `foodini-ui/src/App.tsx`           | Connected recipe, planner, and shopping views                                          |
+| `foodini-ui/src/components/`       | Recipe details, household sync dialog, and shared SVG icons                            |
+| `foodini-ui/src/data/recipes.ts`   | Thirteen Polish recipes, tag labels, units, and shopping categories                    |
+| `foodini-ui/src/types.ts`          | Domain types                                                                           |
+| `foodini-ui/src/domain.ts`         | Filtering, plan generation, batch operations, scaling, and aggregation                 |
+| `foodini-ui/src/storage.ts`        | Initial sample state and validation of persisted data                                  |
+| `foodini-ui/src/sync.ts`           | Client-side sync manager, remote fetch/push, and key persistence                       |
+| `foodini-ui/functions/api/sync.ts` | Cloudflare Pages Function endpoint: auth check, payload validation, and D1 SQLite sync |
+| `foodini-ui/schema.sql`            | Cloudflare D1 SQLite database schema for household state persistence                   |
+| `foodini-ui/tests/sync.test.ts`    | Unit tests for sync authentication, payload limits, and D1 upsert logic                |
+| `foodini-ui/public/images/`        | Local illustrative food photos                                                         |
+| `foodini-ui/public/fonts/`         | Bundled fonts and their OFL licenses; the simplified interface uses DM Sans throughout |
 
 Illustrative photos are from Unsplash: [chickpea curry](https://unsplash.com/photos/RELOvb0rrCE), [butter chicken](https://images.unsplash.com/photo-1603894584373-5ac82b2ae398), [noodles](https://unsplash.com/photos/EDoy1yjPLV0), [meatballs](https://images.unsplash.com/photo-1529042410759-befb1204b468), [stew](https://unsplash.com/photos/gbtQfadV5qY), [vegetable casserole](https://unsplash.com/photos/uHggZfKi8Ks), and [roasted meat](https://images.unsplash.com/photo-1432139555190-58524dae6a55). Font licenses: [DM Sans](foodini-ui/public/fonts/DM-Sans-OFL.txt) and [Manrope](foodini-ui/public/fonts/Manrope-OFL.txt).
 

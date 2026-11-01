@@ -18,6 +18,9 @@ export type IconName =
   | 'chevron'
   | 'sparkle'
   | 'minus'
+  | 'cloud'
+  | 'sync'
+  | 'share'
 
 const paths: Record<IconName, string> = {
   leaf: 'M20 4c-7-1-14 1-14 7a6 6 0 0 0 6 6c6 0 8-6 8-13ZM4 20 15 9M8 14v-4m4 0h4',
@@ -41,6 +44,9 @@ const paths: Record<IconName, string> = {
   chevron: 'm8 4 8 8-8 8',
   sparkle: 'm12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z',
   minus: 'M5 12h14',
+  cloud: 'M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10Z',
+  sync: 'M20 11a8.1 8.1 0 0 0-15.5-2m-.5-5v5h5M4 13a8.1 8.1 0 0 0 15.5 2m.5 5v-5h-5',
+  share: 'M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13',
 }
 
 export function Icon({

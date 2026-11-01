@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { categoryLabels, recipes, tagLabels, unitLabels } from './data/recipes.ts'
 import {
@@ -15,6 +15,14 @@ import {
   togglePlanLock,
 } from './domain.ts'
 import { loadSavedState, STORAGE_KEY } from './storage.ts'
+import {
+  clearStoredSyncKey,
+  fetchRemoteState,
+  getStoredSyncKey,
+  pushRemoteState,
+  setStoredSyncKey,
+  type SyncStatus,
+} from './sync.ts'
 import type {
   MealPlanDay,
   Recipe,
@@ -25,6 +33,7 @@ import type {
 } from './types.ts'
 import { Icon } from './components/Icon.tsx'
 import { RecipeDialog } from './components/RecipeDialog.tsx'
+import { SyncDialog } from './components/SyncDialog.tsx'
 import './App.css'
 
 type View = 'recipes' | 'planner' | 'shopping'
@@ -39,6 +48,19 @@ const mealTypes = [
   { id: 'dinner', label: 'Kolacje' },
 ]
 
+const syncLabels: Record<SyncStatus, { label: string; tooltip: string }> = {
+  idle: { label: 'Zsynchronizowano', tooltip: 'Połączono z chmurą. Dane są aktualne.' },
+  syncing: { label: 'Synchronizuję...', tooltip: 'Trwa synchronizacja danych z chmurą.' },
+  error: {
+    label: 'Błąd synchronizacji',
+    tooltip: 'Nie udało się połączyć z bazą. Kliknij, aby sprawdzić.',
+  },
+  local: {
+    label: 'Lokalnie',
+    tooltip: 'Dane zapisywane tylko w tej przeglądarce. Kliknij, aby włączyć synchronizację.',
+  },
+}
+
 function App() {
   const [initial] = useState(loadSavedState)
   const [saved, setSaved] = useState(initial.state)
@@ -50,6 +72,50 @@ function App() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
   const [toast, setToast] = useState<{ message: string; id: number } | null>(null)
   const [hideChecked, setHideChecked] = useState(false)
+  const [syncKey, setSyncKey] = useState<string>(getStoredSyncKey)
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => (syncKey ? 'syncing' : 'local'))
+  const [showSyncDialog, setShowSyncDialog] = useState(false)
+  const isInitialSyncDone = useRef(false)
+  const lastSyncedSerialized = useRef<string>('')
+  const savedRef = useRef(saved)
+  const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+
+  useEffect(() => {
+    savedRef.current = saved
+  }, [saved])
+
+  useEffect(() => {
+    if (!syncKey) {
+      isInitialSyncDone.current = true
+      return
+    }
+
+    let active = true
+
+    fetchRemoteState(syncKey)
+      .then(async result => {
+        if (!active) return
+        if (result.exists && result.state) {
+          setSaved(result.state)
+          lastSyncedSerialized.current = JSON.stringify(result.state)
+          setSyncStatus('idle')
+        } else {
+          lastSyncedSerialized.current = JSON.stringify(savedRef.current)
+          await pushRemoteState(syncKey, savedRef.current)
+          if (active) setSyncStatus('idle')
+        }
+      })
+      .catch(() => {
+        if (active) setSyncStatus('error')
+      })
+      .finally(() => {
+        if (active) isInitialSyncDone.current = true
+      })
+
+    return () => {
+      active = false
+    }
+  }, [syncKey])
 
   useEffect(() => {
     try {
@@ -61,7 +127,25 @@ function App() {
         'Nie udało się zapisać zmian. Nie zamykaj strony, jeśli chcesz zachować bieżący plan.',
       )
     }
-  }, [saved])
+
+    if (!syncKey || !isInitialSyncDone.current) return
+
+    const currentSerialized = JSON.stringify(saved)
+    if (currentSerialized === lastSyncedSerialized.current) return
+
+    setSyncStatus('syncing')
+    const timer = window.setTimeout(async () => {
+      try {
+        await pushRemoteState(syncKey, saved)
+        lastSyncedSerialized.current = currentSerialized
+        setSyncStatus('idle')
+      } catch {
+        setSyncStatus('error')
+      }
+    }, 800)
+
+    return () => window.clearTimeout(timer)
+  }, [saved, syncKey])
 
   useEffect(() => {
     if (!toast) return
@@ -193,6 +277,21 @@ function App() {
       notify('Przeglądarka nie pozwoliła skopiować listy. Skorzystaj z przycisku „Pobierz listę”.')
     }
   }
+  async function shareShoppingList() {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Foodini · Lista zakupów',
+          text: shoppingText(),
+        })
+        notify('Lista zakupów została udostępniona.')
+      } catch {
+        // User cancelled share dialog
+      }
+    } else {
+      await copyShoppingList()
+    }
+  }
   function downloadShoppingList() {
     const url = URL.createObjectURL(
       new Blob([shoppingText()], { type: 'text/plain;charset=utf-8' }),
@@ -205,6 +304,35 @@ function App() {
     notify('Lista zakupów została pobrana.')
   }
 
+  async function handleSaveSyncKey(newKey: string) {
+    setStoredSyncKey(newKey)
+    setSyncKey(newKey)
+    setSyncStatus('syncing')
+    try {
+      const result = await fetchRemoteState(newKey)
+      if (result.exists && result.state) {
+        setSaved(result.state)
+        lastSyncedSerialized.current = JSON.stringify(result.state)
+        notify('Połączono! Wczytano dane z chmury.')
+      } else {
+        await pushRemoteState(newKey, saved)
+        lastSyncedSerialized.current = JSON.stringify(saved)
+        notify('Połączono! Zapisano bieżący plan w chmurze.')
+      }
+      setSyncStatus('idle')
+    } catch (err) {
+      setSyncStatus('error')
+      throw err
+    }
+  }
+
+  function handleDisconnectSync() {
+    clearStoredSyncKey()
+    setSyncKey('')
+    setSyncStatus('local')
+    notify('Odłączono synchronizację. Dane pozostają w pamięci tej przeglądarki.')
+  }
+
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
@@ -212,13 +340,25 @@ function App() {
       </a>
       <header className="app-header">
         <div className="header-content">
-          <button
-            className="brand"
-            onClick={() => navigate('recipes')}
-            aria-label="Foodini — posiłki"
-          >
-            foodini
-          </button>
+          <div className="header-brand-row">
+            <button
+              className="brand"
+              onClick={() => navigate('recipes')}
+              aria-label="Foodini — posiłki"
+            >
+              foodini
+            </button>
+            <button
+              type="button"
+              className={`sync-status-btn status-${syncStatus}`}
+              onClick={() => setShowSyncDialog(true)}
+              title={syncLabels[syncStatus].tooltip}
+              aria-label={`Synchronizacja: ${syncLabels[syncStatus].label}`}
+            >
+              <span className={`status-dot dot-${syncStatus}`} />
+              <span className="sync-status-label">{syncLabels[syncStatus].label}</span>
+            </button>
+          </div>
           <nav className="main-nav" aria-label="Nawigacja główna">
             {navigation.map(item => (
               <button
@@ -516,6 +656,17 @@ function App() {
             <div className="page-heading">
               <h1>Lista zakupów</h1>
               <div className="header-actions">
+                {canShare && (
+                  <button
+                    className="button secondary"
+                    onClick={shareShoppingList}
+                    disabled={!shoppingItems.length}
+                    title="Udostępnij do Google Keep, notatek lub komunikatora"
+                  >
+                    <Icon name="share" size={17} />
+                    Udostępnij
+                  </button>
+                )}
                 <button
                   className="button secondary"
                   onClick={downloadShoppingList}
@@ -672,6 +823,15 @@ function App() {
           plan={saved.plan}
           onClose={() => setSelectedRecipe(null)}
           onAdd={addRecipe}
+        />
+      )}
+      {showSyncDialog && (
+        <SyncDialog
+          currentKey={syncKey}
+          status={syncStatus}
+          onSaveKey={handleSaveSyncKey}
+          onDisconnect={handleDisconnectSync}
+          onClose={() => setShowSyncDialog(false)}
         />
       )}
       <div className="toast-region" role="status" aria-live="polite" aria-atomic="true">

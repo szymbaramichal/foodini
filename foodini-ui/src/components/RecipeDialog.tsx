@@ -21,9 +21,38 @@ export function RecipeDialog({
     (day, index) => !day.isLeftoverDay && !isBatchLocked(plan, index),
   )
   const [target, setTarget] = useState(availableDays[0]?.dayIndex ?? -1)
+  const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+
   useEffect(() => {
     dialog.current?.showModal()
   }, [])
+
+  async function shareRecipe() {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        const text = [
+          recipe.name,
+          recipe.description,
+          '',
+          `SKŁADNIKI (${portions} ${portionLabel(portions)}):`,
+          ...recipe.ingredients.map(item => {
+            const scaled = (item.amount * portions) / recipe.basePortions
+            return `• ${item.name} — ${formatAmount(scaled)} ${unitLabels[item.unit]}`
+          }),
+          '',
+          'PRZYGOTOWANIE:',
+          ...recipe.instructions.map((step, i) => `${i + 1}. ${step}`),
+        ].join('\n')
+
+        await navigator.share({
+          title: `Foodini · ${recipe.name}`,
+          text,
+        })
+      } catch {
+        // User dismissed share dialog
+      }
+    }
+  }
 
   return (
     <dialog
@@ -38,9 +67,21 @@ export function RecipeDialog({
       <div className="dialog-body">
         <div className="dialog-heading">
           <h2 id="recipe-title">{recipe.name}</h2>
-          <button className="icon-button" onClick={onClose} aria-label="Zamknij przepis">
-            <Icon name="close" />
-          </button>
+          <div className="dialog-heading-actions">
+            {canShare && (
+              <button
+                className="icon-button"
+                onClick={shareRecipe}
+                aria-label="Udostępnij przepis"
+                title="Udostępnij przepis"
+              >
+                <Icon name="share" />
+              </button>
+            )}
+            <button className="icon-button" onClick={onClose} aria-label="Zamknij przepis">
+              <Icon name="close" />
+            </button>
+          </div>
         </div>
         <p className="muted">{recipe.description}</p>
         <div className="recipe-meta">
