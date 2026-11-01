@@ -34,7 +34,6 @@ import type {
 import { Icon } from './components/Icon.tsx'
 import { RecipeDialog } from './components/RecipeDialog.tsx'
 import { SyncDialog } from './components/SyncDialog.tsx'
-import './App.css'
 
 type View = 'recipes' | 'planner' | 'shopping'
 const navigation: { id: View; label: string }[] = [
@@ -236,8 +235,12 @@ function App() {
     const amount = Number(data.get('amount'))
     if (!name || name.length > 100 || !Number.isFinite(amount) || amount <= 0)
       return notify('Wpisz nazwę produktu i ilość większą od zera.')
+    const id =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2) + Date.now().toString(36)
     const item: ShoppingItem = {
-      id: `custom:${crypto.randomUUID()}`,
+      id: `custom:${id}`,
       name,
       amount,
       unit: data.get('unit') as UnitType,
@@ -334,15 +337,18 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
-      <a className="skip-link" href="#main-content">
+    <div className="min-h-screen bg-white text-foodini-text">
+      <a
+        className="fixed -top-20 left-4 z-50 bg-brand p-3 text-white transition-all focus:top-3"
+        href="#main-content"
+      >
         Przejdź do treści
       </a>
-      <header className="app-header">
-        <div className="header-content">
-          <div className="header-brand-row">
+      <header className="sticky top-0 z-20 border-b border-foodini-border bg-white">
+        <div className="mx-auto flex max-w-[1040px] items-center justify-between gap-2 p-2 sm:gap-5 sm:px-6 sm:py-3 max-sm:flex-wrap">
+          <div className="flex items-center gap-4 max-sm:w-full max-sm:justify-between">
             <button
-              className="brand"
+              className="min-h-[44px] cursor-pointer bg-transparent p-0 text-[22px] font-bold tracking-tight text-brand sm:text-2xl"
               onClick={() => navigate('recipes')}
               aria-label="Foodini — posiłki"
             >
@@ -350,27 +356,31 @@ function App() {
             </button>
             <button
               type="button"
-              className={`sync-status-btn status-${syncStatus}`}
+              className="inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-full border border-foodini-border bg-foodini-subtle px-3 py-1 text-xs text-foodini-muted transition hover:bg-brand-light hover:text-brand sm:text-[13px]"
               onClick={() => setShowSyncDialog(true)}
               title={syncLabels[syncStatus].tooltip}
               aria-label={`Synchronizacja: ${syncLabels[syncStatus].label}`}
             >
               <span className={`status-dot dot-${syncStatus}`} />
-              <span className="sync-status-label">{syncLabels[syncStatus].label}</span>
+              <span>{syncLabels[syncStatus].label}</span>
             </button>
           </div>
-          <nav className="main-nav" aria-label="Nawigacja główna">
+          <nav className="flex gap-1 max-sm:w-full" aria-label="Nawigacja główna">
             {navigation.map(item => (
               <button
                 key={item.id}
-                className={`nav-item ${view === item.id ? 'active' : ''}`}
+                className={`flex min-h-[44px] flex-1 cursor-pointer items-center justify-center gap-2 rounded px-3 text-[13px] transition sm:flex-initial sm:px-4 sm:text-sm ${
+                  view === item.id
+                    ? 'bg-brand-light font-semibold text-brand'
+                    : 'bg-transparent text-foodini-muted hover:bg-brand-light hover:text-brand'
+                }`}
                 onClick={() => navigate(item.id)}
                 aria-label={item.label}
                 aria-current={view === item.id ? 'page' : undefined}
               >
                 {item.label}
                 {item.id === 'shopping' && (
-                  <span className="nav-count">{shoppingItems.length - checkedCount}</span>
+                  <span className="text-xs">{shoppingItems.length - checkedCount}</span>
                 )}
               </button>
             ))}
@@ -378,12 +388,18 @@ function App() {
         </div>
       </header>
 
-      <main id="main-content">
+      <main
+        id="main-content"
+        className="mx-auto max-w-[1040px] px-4 py-6 pb-10 sm:px-6 sm:py-7 sm:pb-12"
+      >
         {storageWarning && (
-          <div className="storage-warning" role="alert">
+          <div
+            className="mb-6 flex items-center justify-between gap-3 rounded-md border border-amber-200 bg-amber-50 p-3 px-4 text-sm leading-relaxed text-amber-900"
+            role="alert"
+          >
             {storageWarning}
             <button
-              className="icon-button"
+              className="btn-icon"
               aria-label="Zamknij informację o zapisie"
               onClick={() => setStorageWarning('')}
             >
@@ -394,12 +410,15 @@ function App() {
 
         {view === 'recipes' && (
           <section aria-label="Przeglądaj przepisy">
-            <div className="page-heading">
-              <h1>
-                Posiłki <span className="muted count">{filteredRecipes.length}</span>
+            <div className="mb-6 flex flex-wrap items-start justify-between gap-3 sm:items-center sm:gap-4">
+              <h1 className="text-[23px] font-semibold tracking-tight sm:text-[26px]">
+                Posiłki{' '}
+                <span className="ml-1.5 text-base font-normal text-foodini-muted">
+                  {filteredRecipes.length}
+                </span>
               </h1>
               <button
-                className="button primary"
+                className="btn-primary"
                 disabled={!filteredRecipes.length}
                 onClick={() => {
                   const recipe = pickRecipe(filteredRecipes)
@@ -410,15 +429,17 @@ function App() {
                 Wylosuj posiłek
               </button>
             </div>
-            <div className="search-row">
+            <div className="flex flex-wrap gap-2 sm:flex-nowrap sm:gap-3">
               <input
                 type="search"
+                className="form-input flex-1"
                 placeholder="Szukaj dania lub składnika"
                 aria-label="Szukaj dania lub składnika"
                 value={query}
                 onChange={event => setQuery(event.target.value)}
               />
               <select
+                className="form-input sm:w-40"
                 value={mealType}
                 onChange={event => setMealType(event.target.value)}
                 aria-label="Rodzaj posiłku"
@@ -430,12 +451,16 @@ function App() {
                 ))}
               </select>
             </div>
-            <div className="filter-row">
-              <div className="filter-chips" role="group" aria-label="Tagi przepisów">
+            <div className="my-3 mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 sm:my-4">
+              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Tagi przepisów">
                 {(Object.keys(tagLabels) as RecipeTag[]).map(tag => (
                   <button
                     key={tag}
-                    className={`filter-chip ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                    className={`min-h-[44px] cursor-pointer rounded border px-2.5 text-[13px] transition ${
+                      selectedTags.includes(tag)
+                        ? 'border-brand bg-brand-light font-medium text-brand'
+                        : 'border-foodini-border bg-white text-foodini-muted hover:border-brand/40'
+                    }`}
                     aria-pressed={selectedTags.includes(tag)}
                     onClick={() =>
                       setSelectedTags(current =>
@@ -450,39 +475,51 @@ function App() {
                 ))}
               </div>
               {activeFilterCount > 0 && (
-                <button className="text-button" onClick={clearFilters}>
+                <button className="btn-text" onClick={clearFilters}>
                   Wyczyść filtry
                 </button>
               )}
             </div>
             {selectedTags.length > 1 && (
-              <p className="filter-explanation muted">
+              <p className="-mt-2 mb-4 text-[13px] text-foodini-muted">
                 Dania muszą pasować do wszystkich wybranych tagów.
               </p>
             )}
 
             {filteredRecipes.length ? (
-              <div className="recipe-grid">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {filteredRecipes.map((recipe, index) => (
-                  <article className="recipe-card" key={recipe.id}>
+                  <article
+                    className="flex items-start gap-3 rounded-md border border-foodini-border bg-white p-3 sm:gap-4 sm:p-4"
+                    key={recipe.id}
+                  >
                     <button
-                      className="image-open"
+                      className="h-[88px] w-[88px] shrink-0 cursor-pointer overflow-hidden rounded border-0 bg-foodini-subtle p-0 sm:h-[104px] sm:w-[104px]"
                       onClick={() => setSelectedRecipe(recipe)}
-                      aria-label={`Zobacz przepis: ${recipe.name}`}
+                      tabIndex={-1}
+                      aria-hidden="true"
                     >
                       <img
                         src={recipe.imageUrl}
-                        alt={`Zdjęcie poglądowe dania: ${recipe.name}`}
+                        alt=""
+                        className="block h-full w-full object-cover"
                         loading={index < 3 ? 'eager' : 'lazy'}
                         style={{ objectPosition: recipe.imagePosition }}
                       />
                     </button>
-                    <div className="card-body">
-                      <button className="card-title" onClick={() => setSelectedRecipe(recipe)}>
-                        <h2>{recipe.name}</h2>
-                      </button>
-                      <p>{recipe.description}</p>
-                      <div className="card-footer">
+                    <div className="min-w-0 flex-1">
+                      <h2 className="text-base font-semibold leading-snug sm:text-[17px]">
+                        <button
+                          className="min-h-[44px] cursor-pointer bg-transparent p-0 text-left text-inherit hover:text-brand"
+                          onClick={() => setSelectedRecipe(recipe)}
+                        >
+                          {recipe.name}
+                        </button>
+                      </h2>
+                      <p className="mt-1 text-[13px] leading-relaxed text-foodini-muted">
+                        {recipe.description}
+                      </p>
+                      <div className="mt-2.5 text-xs text-foodini-muted">
                         {recipe.prepTimeMinutes} min · {recipe.basePortions}{' '}
                         {portionLabel(recipe.basePortions)}
                       </div>
@@ -491,15 +528,19 @@ function App() {
                 ))}
               </div>
             ) : (
-              <div className="empty-state">
-                <h2>Brak pasujących przepisów</h2>
-                <p>Zmień wyszukiwanie lub usuń część filtrów.</p>
-                <button className="button secondary" onClick={clearFilters}>
+              <div className="rounded-md border border-foodini-border bg-white p-9 text-center">
+                <h2 className="text-base font-semibold sm:text-[17px]">
+                  Brak pasujących przepisów
+                </h2>
+                <p className="my-3 text-sm text-foodini-muted">
+                  Zmień wyszukiwanie lub usuń część filtrów.
+                </p>
+                <button className="btn-secondary mt-4" onClick={clearFilters}>
                   Pokaż wszystkie przepisy
                 </button>
               </div>
             )}
-            <p className="photo-disclaimer muted">
+            <p className="mt-4 text-xs text-foodini-muted">
               Zdjęcia poglądowe.{' '}
               {filteredRecipes
                 .filter(recipe => recipe.imageCredit)
@@ -507,8 +548,25 @@ function App() {
                   const credit = recipe.imageCredit!
                   return (
                     <span key={recipe.id}>
-                      {recipe.name}: <a href={credit.sourceUrl}>{credit.author}</a>,{' '}
-                      <a href={credit.licenseUrl}>{credit.licenseName}</a> (miniatura).{' '}
+                      {recipe.name}:{' '}
+                      <a
+                        className="text-brand underline hover:text-brand-dark"
+                        href={credit.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {credit.author}
+                      </a>
+                      ,{' '}
+                      <a
+                        className="text-brand underline hover:text-brand-dark"
+                        href={credit.licenseUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {credit.licenseName}
+                      </a>{' '}
+                      (miniatura).{' '}
                     </span>
                   )
                 })}
@@ -518,17 +576,23 @@ function App() {
 
         {view === 'planner' && (
           <section aria-label="Plan posiłków">
-            <div className="page-heading">
-              <h1>Planer</h1>
-              <button className="button secondary" onClick={() => navigate('shopping')}>
+            <div className="mb-6 flex flex-wrap items-start justify-between gap-3 sm:items-center sm:gap-4">
+              <h1 className="text-[23px] font-semibold tracking-tight sm:text-[26px]">Planer</h1>
+              <button className="btn-secondary" onClick={() => navigate('shopping')}>
                 Przejdź do zakupów
               </button>
             </div>
-            <section className="plan-settings" aria-label="Ustawienia planu">
-              <div className="setting-field">
-                <label htmlFor="duration">Na ile dni?</label>
+            <section
+              className="grid grid-cols-1 items-end gap-3 rounded-md border border-foodini-border bg-white p-4 sm:grid-cols-2 sm:gap-4 sm:p-5 lg:grid-cols-[140px_140px_1fr_auto]"
+              aria-label="Ustawienia planu"
+            >
+              <div>
+                <label htmlFor="duration" className="mb-1.5 block text-[13px] font-medium">
+                  Na ile dni?
+                </label>
                 <select
                   id="duration"
+                  className="form-input"
                   value={saved.settings.duration}
                   onChange={event =>
                     setSaved(current => ({
@@ -544,10 +608,13 @@ function App() {
                   ))}
                 </select>
               </div>
-              <div className="setting-field">
-                <label htmlFor="people">Porcje dziennie</label>
+              <div>
+                <label htmlFor="people" className="mb-1.5 block text-[13px] font-medium">
+                  Porcje dziennie
+                </label>
                 <select
                   id="people"
+                  className="form-input"
                   value={saved.settings.people}
                   onChange={event =>
                     setSaved(current => ({
@@ -563,9 +630,10 @@ function App() {
                   ))}
                 </select>
               </div>
-              <label className="checkbox-label batch-setting">
+              <label className="checkbox-label self-end max-sm:col-span-full">
                 <input
                   type="checkbox"
+                  className="form-checkbox"
                   checked={saved.settings.batch}
                   onChange={event =>
                     setSaved(current => ({
@@ -576,56 +644,69 @@ function App() {
                 />
                 Gotuję na dwa dni
               </label>
-              <button className="button primary" onClick={createPlan}>
+              <button className="btn-primary self-end max-sm:col-span-full" onClick={createPlan}>
                 Ułóż nowy plan
               </button>
-              <p className="settings-hint muted">
+              <p className="col-span-full text-[13px] leading-relaxed text-foodini-muted">
                 Ustawienia zastosujesz przy układaniu nowego planu. Zablokowane posiłki zachowają
                 dania i porcje.
               </p>
             </section>
-            <div className="section-heading">
-              <p className="muted">
+            <div className="my-4 flex items-center justify-between gap-3 text-sm sm:my-5">
+              <p className="text-foodini-muted">
                 Dni: {saved.plan.length} · Posiłki do przygotowania: {cookingCount}
               </p>
-              <button className="text-button" onClick={() => navigate('recipes')}>
+              <button className="btn-text" onClick={() => navigate('recipes')}>
                 {activeFilterCount ? `Aktywne filtry: ${activeFilterCount}` : 'Filtry posiłków'}
               </button>
             </div>
             {activeFilterCount > 0 && (
-              <div className="filter-notice">
+              <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] text-foodini-muted">
                 <span>
                   Losujemy z {filteredRecipes.length} pasujących przepisów. Zablokowane dania
                   pozostają bez zmian.
                 </span>
-                <button className="text-button" onClick={clearFilters}>
+                <button className="btn-text" onClick={clearFilters}>
                   Wyczyść filtry
                 </button>
               </div>
             )}
-            <div className="plan-list">
+            <div className="divide-y divide-foodini-border overflow-hidden rounded-md border border-foodini-border bg-white">
               {saved.plan.map((day, index) => {
                 const recipe = recipes.find(recipe => recipe.id === day.recipeId)!
                 const locked = isBatchLocked(saved.plan, index)
                 return (
                   <article
                     key={day.dayIndex}
-                    className={`plan-day ${day.isLeftoverDay ? 'leftover-day' : ''} ${locked ? 'locked-day' : ''}`}
+                    className={`grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 p-3 transition sm:grid-cols-[70px_minmax(0,1fr)_auto] sm:gap-4 sm:p-4 ${
+                      day.isLeftoverDay ? 'bg-foodini-subtle' : ''
+                    }`}
                   >
-                    <span className="day-number">Dzień {index + 1}</span>
-                    <div className="plan-recipe">
-                      <button className="card-title" onClick={() => setSelectedRecipe(recipe)}>
-                        <h2>{recipe.name}</h2>
-                      </button>
-                      <p className="muted">
+                    <span
+                      className={`text-sm font-semibold max-sm:col-start-1 max-sm:row-start-1 ${
+                        locked ? 'text-brand' : 'text-foodini-text'
+                      }`}
+                    >
+                      Dzień {index + 1}
+                    </span>
+                    <div className="min-w-0 max-sm:col-span-2 max-sm:row-start-2">
+                      <h2 className="text-base font-semibold leading-snug sm:text-[17px]">
+                        <button
+                          className="min-h-[44px] cursor-pointer bg-transparent p-0 text-left text-inherit hover:text-brand"
+                          onClick={() => setSelectedRecipe(recipe)}
+                        >
+                          {recipe.name}
+                        </button>
+                      </h2>
+                      <p className="text-[13px] leading-relaxed text-foodini-muted">
                         {day.isLeftoverDay
                           ? `${day.servings} ${portionLabel(day.servings)} · porcja z dnia ${index}`
                           : `${day.servings} ${portionLabel(day.servings)} do przygotowania${day.coversDays === 2 ? ' · na dwa dni' : ''} · ${recipe.prepTimeMinutes} min`}
                       </p>
                     </div>
-                    <div className="plan-actions">
+                    <div className="flex gap-1 justify-self-end max-sm:col-start-2 max-sm:row-start-1">
                       <button
-                        className={`icon-button ${locked ? 'is-locked' : ''}`}
+                        className={`btn-icon ${locked ? 'bg-brand-light text-brand' : ''}`}
                         onClick={() => updatePlan(togglePlanLock(saved.plan, index))}
                         aria-label={`${locked ? 'Odblokuj' : 'Zablokuj'} dzień ${index + 1}`}
                         title={locked ? 'Odblokuj posiłek' : 'Zachowaj przy losowaniu'}
@@ -634,7 +715,7 @@ function App() {
                       </button>
                       {!day.isLeftoverDay && (
                         <button
-                          className="icon-button"
+                          className="btn-icon"
                           disabled={locked}
                           onClick={() => rerollDay(index)}
                           aria-label={`Wylosuj inne danie na dzień ${index + 1}`}
@@ -653,12 +734,14 @@ function App() {
 
         {view === 'shopping' && (
           <section aria-label="Zakupy">
-            <div className="page-heading">
-              <h1>Lista zakupów</h1>
-              <div className="header-actions">
+            <div className="mb-6 flex flex-wrap items-start justify-between gap-3 sm:items-center sm:gap-4">
+              <h1 className="text-[23px] font-semibold tracking-tight sm:text-[26px]">
+                Lista zakupów
+              </h1>
+              <div className="flex flex-wrap items-center gap-2">
                 {canShare && (
                   <button
-                    className="button secondary"
+                    className="btn-secondary"
                     onClick={shareShoppingList}
                     disabled={!shoppingItems.length}
                     title="Udostępnij do Google Keep, notatek lub komunikatora"
@@ -668,14 +751,14 @@ function App() {
                   </button>
                 )}
                 <button
-                  className="button secondary"
+                  className="btn-secondary"
                   onClick={downloadShoppingList}
                   disabled={!shoppingItems.length}
                 >
                   Pobierz listę
                 </button>
                 <button
-                  className="button primary"
+                  className="btn-primary"
                   onClick={copyShoppingList}
                   disabled={!shoppingItems.length}
                 >
@@ -683,36 +766,48 @@ function App() {
                 </button>
               </div>
             </div>
-            <div className="section-heading">
-              <p className="muted">
+            <div className="my-4 flex items-center justify-between gap-3 text-sm sm:my-5">
+              <p className="text-foodini-muted">
                 Kupione: {checkedCount} z {shoppingItems.length}
               </p>
               <label className="checkbox-label">
                 <input
                   type="checkbox"
+                  className="form-checkbox"
                   checked={hideChecked}
                   onChange={event => setHideChecked(event.target.checked)}
                 />
                 Ukryj kupione
               </label>
             </div>
-            <details className="custom-item-panel">
-              <summary>Dodaj produkt</summary>
-              <form onSubmit={addCustomItem}>
-                <div className="custom-field custom-name">
-                  <label htmlFor="custom-name">Nazwa produktu</label>
+            <details className="mb-6 rounded-md border border-foodini-border bg-white px-4">
+              <summary className="flex min-h-[48px] cursor-pointer items-center py-3 text-sm font-medium">
+                Dodaj produkt
+              </summary>
+              <form
+                onSubmit={addCustomItem}
+                className="grid grid-cols-1 items-end gap-3 pb-4 pt-1 sm:grid-cols-2 md:grid-cols-[minmax(140px,2fr)_80px_100px_minmax(140px,1fr)_auto]"
+              >
+                <div className="max-md:col-span-full">
+                  <label htmlFor="custom-name" className="mb-1.5 block text-[13px] font-medium">
+                    Nazwa produktu
+                  </label>
                   <input
                     id="custom-name"
+                    className="form-input"
                     name="name"
                     placeholder="np. Kawa"
                     maxLength={100}
                     required
                   />
                 </div>
-                <div className="custom-field">
-                  <label htmlFor="custom-amount">Ilość</label>
+                <div>
+                  <label htmlFor="custom-amount" className="mb-1.5 block text-[13px] font-medium">
+                    Ilość
+                  </label>
                   <input
                     id="custom-amount"
+                    className="form-input"
                     name="amount"
                     type="number"
                     min="0.01"
@@ -722,9 +817,11 @@ function App() {
                     required
                   />
                 </div>
-                <div className="custom-field">
-                  <label htmlFor="custom-unit">Jednostka</label>
-                  <select id="custom-unit" name="unit" defaultValue="pcs">
+                <div>
+                  <label htmlFor="custom-unit" className="mb-1.5 block text-[13px] font-medium">
+                    Jednostka
+                  </label>
+                  <select id="custom-unit" className="form-input" name="unit" defaultValue="pcs">
                     {Object.entries(unitLabels).map(([value, label]) => (
                       <option key={value} value={value}>
                         {label}
@@ -732,9 +829,16 @@ function App() {
                     ))}
                   </select>
                 </div>
-                <div className="custom-field custom-category">
-                  <label htmlFor="custom-category">Kategoria</label>
-                  <select id="custom-category" name="category" defaultValue="other">
+                <div className="max-md:col-span-full">
+                  <label htmlFor="custom-category" className="mb-1.5 block text-[13px] font-medium">
+                    Kategoria
+                  </label>
+                  <select
+                    id="custom-category"
+                    className="form-input"
+                    name="category"
+                    defaultValue="other"
+                  >
                     {Object.entries(categoryLabels).map(([value, label]) => (
                       <option key={value} value={value}>
                         {label}
@@ -742,43 +846,54 @@ function App() {
                     ))}
                   </select>
                 </div>
-                <button className="button primary" type="submit">
+                <button className="btn-primary" type="submit">
                   Dodaj do listy
                 </button>
               </form>
             </details>
-            <div className="shopping-layout">
+            <div className="space-y-6">
               {Object.entries(categoryLabels).map(([category, label]) => {
                 const allItems = shoppingItems.filter(item => item.category === category)
                 const items = allItems.filter(item => !hideChecked || !item.isChecked)
                 if (!items.length) return null
                 return (
-                  <section className="shopping-group" key={category}>
-                    <div className="group-heading">
-                      <h2>{label}</h2>
-                      <span className="muted">
+                  <section key={category}>
+                    <div className="flex items-center justify-between gap-3 border-b border-foodini-border pb-2">
+                      <h2 className="text-[15px] font-semibold">{label}</h2>
+                      <span className="text-xs text-foodini-muted">
                         {allItems.filter(item => item.isChecked).length}/{allItems.length}
                       </span>
                     </div>
                     {items.map(item => (
                       <div
-                        className={`shopping-item ${item.isChecked ? 'checked-item' : ''}`}
+                        className="flex items-center gap-2 border-b border-foodini-border/60"
                         key={item.id}
                       >
-                        <label>
+                        <label className="flex min-h-[52px] flex-1 cursor-pointer select-none items-center gap-3 py-2.5 text-sm">
                           <input
                             type="checkbox"
+                            className="form-checkbox"
                             checked={item.isChecked}
                             onChange={() => toggleShoppingItem(item)}
                           />
-                          <span className="item-name">{item.name}</span>
-                          <strong>
+                          <span
+                            className={`leading-normal ${
+                              item.isChecked ? 'text-foodini-muted line-through' : ''
+                            }`}
+                          >
+                            {item.name}
+                          </span>
+                          <strong
+                            className={`ml-auto whitespace-nowrap text-[13px] font-medium ${
+                              item.isChecked ? 'text-foodini-muted line-through' : ''
+                            }`}
+                          >
                             {formatAmount(item.amount)} {unitLabels[item.unit]}
                           </strong>
                         </label>
                         {item.isCustom && (
                           <button
-                            className="icon-button"
+                            className="btn-icon"
                             aria-label={`Usuń produkt: ${item.name}`}
                             onClick={() =>
                               setSaved(current => ({
@@ -799,10 +914,12 @@ function App() {
               })}
               {(!shoppingItems.length ||
                 (hideChecked && checkedCount === shoppingItems.length)) && (
-                <div className="empty-state">
-                  <h2>{shoppingItems.length ? 'Wszystko kupione' : 'Lista jest pusta'}</h2>
+                <div className="rounded-md border border-foodini-border bg-white p-9 text-center">
+                  <h2 className="text-base font-semibold sm:text-[17px]">
+                    {shoppingItems.length ? 'Wszystko kupione' : 'Lista jest pusta'}
+                  </h2>
                   <button
-                    className="button secondary"
+                    className="btn-secondary mt-4"
                     onClick={() =>
                       shoppingItems.length ? setHideChecked(false) : navigate('planner')
                     }
@@ -834,12 +951,20 @@ function App() {
           onClose={() => setShowSyncDialog(false)}
         />
       )}
-      <div className="toast-region" role="status" aria-live="polite" aria-atomic="true">
+      <div
+        className="fixed bottom-5 left-1/2 z-50 w-max max-w-[calc(100vw-1.5rem)] -translate-x-1/2"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {toast && (
-          <div className="toast" key={toast.id}>
+          <div
+            className="flex items-center gap-2 rounded-md bg-brand-dark py-2 pl-4 pr-2 text-sm leading-normal text-white shadow-lg"
+            key={toast.id}
+          >
             <span>{toast.message}</span>
             <button
-              className="icon-button"
+              className="btn-icon text-white hover:bg-white/10"
               aria-label="Zamknij powiadomienie"
               onClick={() => setToast(null)}
             >

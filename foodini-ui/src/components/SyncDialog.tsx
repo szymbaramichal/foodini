@@ -21,7 +21,15 @@ export function SyncDialog({
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
-    dialog.current?.showModal()
+    const node = dialog.current
+    if (node && !node.open) {
+      node.showModal()
+    }
+    return () => {
+      if (node?.open) {
+        node.close()
+      }
+    }
   }, [])
 
   async function handleSubmit(e: FormEvent) {
@@ -51,18 +59,20 @@ export function SyncDialog({
   return (
     <dialog
       ref={dialog}
-      className="recipe-dialog sync-dialog"
+      className="dialog-modal"
       onClose={onClose}
       onClick={event => {
         if (event.target === event.currentTarget) onClose()
       }}
       aria-labelledby="sync-dialog-title"
     >
-      <div className="dialog-body">
-        <div className="dialog-heading">
-          <h2 id="sync-dialog-title">Synchronizacja</h2>
+      <div className="p-5 sm:p-6">
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <h2 id="sync-dialog-title" className="text-xl font-semibold sm:text-[22px]">
+            Synchronizacja
+          </h2>
           <button
-            className="icon-button"
+            className="btn-icon -mr-2 -mt-1"
             onClick={onClose}
             aria-label="Zamknij okno synchronizacji"
           >
@@ -70,12 +80,12 @@ export function SyncDialog({
           </button>
         </div>
 
-        <p className="muted">
+        <p className="text-sm leading-relaxed text-foodini-muted">
           Współdziel bieżący plan posiłków i listę zakupów z drugim urządzeniem lub domownikiem.
         </p>
 
-        <div className="sync-status-badge">
-          <span className={`status-dot status-${status}`} />
+        <div className="my-4 flex items-center gap-2.5 rounded-md bg-foodini-subtle p-2.5 px-3.5 text-sm">
+          <span className={`status-dot dot-${status}`} />
           <span>
             {status === 'idle' && 'Połączono i zsynchronizowano z chmurą'}
             {status === 'syncing' && 'Trwa synchronizacja danych...'}
@@ -84,10 +94,13 @@ export function SyncDialog({
           </span>
         </div>
 
-        <form onSubmit={handleSubmit} className="sync-form">
-          <label htmlFor="sync-key-input">Wspólny klucz gospodarstwa domowego</label>
+        <form onSubmit={handleSubmit} className="mt-2 flex flex-col gap-2">
+          <label htmlFor="sync-key-input" className="text-sm font-medium">
+            Wspólny klucz gospodarstwa domowego
+          </label>
           <input
             id="sync-key-input"
+            className="form-input"
             type="text"
             value={keyInput}
             onChange={e => setKeyInput(e.target.value)}
@@ -97,19 +110,20 @@ export function SyncDialog({
             required
             autoComplete="off"
             autoCorrect="off"
+            autoCapitalize="none"
             spellCheck="false"
           />
-          <p className="settings-hint muted">
+          <p className="text-[13px] leading-relaxed text-foodini-muted">
             Wpisz to samo hasło na drugim urządzeniu, aby mieć ten sam plan i listę zakupów.
           </p>
 
-          {errorMsg && <p className="sync-error-text">{errorMsg}</p>}
+          {errorMsg && <p className="mt-1 text-[13px] text-status-error">{errorMsg}</p>}
 
-          <div className="sync-dialog-actions">
+          <div className="mt-4 flex items-center justify-end gap-2.5">
             {currentKey && (
               <button
                 type="button"
-                className="button secondary danger-text"
+                className="btn-secondary text-red-700 hover:text-red-800"
                 onClick={handleDisconnect}
                 disabled={isSubmitting}
               >
@@ -118,7 +132,7 @@ export function SyncDialog({
             )}
             <button
               type="submit"
-              className="button primary"
+              className="btn-primary"
               disabled={isSubmitting || !keyInput.trim() || keyInput.trim().length < 4}
             >
               {isSubmitting ? 'Łączenie...' : 'Zapisz i połącz'}

@@ -4,6 +4,12 @@ import { formatAmount, isBatchLocked, portionLabel } from '../domain.ts'
 import type { MealPlanDay, Recipe } from '../types.ts'
 import { Icon } from './Icon.tsx'
 
+const difficultyLabels: Record<Recipe['difficulty'], string> = {
+  easy: 'Łatwy przepis',
+  medium: 'Średni poziom',
+  hard: 'Wymagający przepis',
+}
+
 export function RecipeDialog({
   recipe,
   plan,
@@ -24,7 +30,15 @@ export function RecipeDialog({
   const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
 
   useEffect(() => {
-    dialog.current?.showModal()
+    const node = dialog.current
+    if (node && !node.open) {
+      node.showModal()
+    }
+    return () => {
+      if (node?.open) {
+        node.close()
+      }
+    }
   }, [])
 
   async function shareRecipe() {
@@ -57,20 +71,25 @@ export function RecipeDialog({
   return (
     <dialog
       ref={dialog}
-      className="recipe-dialog"
+      className="dialog-modal"
       onClose={onClose}
       onClick={event => {
         if (event.target === event.currentTarget) onClose()
       }}
       aria-labelledby="recipe-title"
     >
-      <div className="dialog-body">
-        <div className="dialog-heading">
-          <h2 id="recipe-title">{recipe.name}</h2>
-          <div className="dialog-heading-actions">
+      <div className="p-5 sm:p-6">
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <h2
+            id="recipe-title"
+            className="pt-1.5 text-xl font-semibold text-foodini-text sm:text-[22px]"
+          >
+            {recipe.name}
+          </h2>
+          <div className="-mr-2 -mt-1 flex items-center gap-1">
             {canShare && (
               <button
-                className="icon-button"
+                className="btn-icon"
                 onClick={shareRecipe}
                 aria-label="Udostępnij przepis"
                 title="Udostępnij przepis"
@@ -78,39 +97,41 @@ export function RecipeDialog({
                 <Icon name="share" />
               </button>
             )}
-            <button className="icon-button" onClick={onClose} aria-label="Zamknij przepis">
+            <button className="btn-icon" onClick={onClose} aria-label="Zamknij przepis">
               <Icon name="close" />
             </button>
           </div>
         </div>
-        <p className="muted">{recipe.description}</p>
-        <div className="recipe-meta">
-          <span>
+        <p className="text-sm leading-relaxed text-foodini-muted">{recipe.description}</p>
+        <div className="my-4 mb-2 flex flex-wrap gap-4">
+          <span className="flex items-center gap-1.5 text-[13px] text-foodini-muted">
             <Icon name="clock" size={17} />
             {recipe.prepTimeMinutes} min
           </span>
-          <span>
+          <span className="flex items-center gap-1.5 text-[13px] text-foodini-muted">
             <Icon name="recipes" size={17} />
-            {recipe.difficulty === 'easy' ? 'Łatwy przepis' : 'Średni poziom'}
+            {difficultyLabels[recipe.difficulty] ?? 'Średni poziom'}
           </span>
         </div>
-        <p className="recipe-tags muted">{recipe.tags.map(tag => tagLabels[tag]).join(' · ')}</p>
-        <div className="ingredients-heading">
-          <h3>Składniki</h3>
-          <div className="portion-stepper">
+        <p className="text-[13px] text-foodini-muted">
+          {recipe.tags.map(tag => tagLabels[tag]).join(' · ')}
+        </p>
+        <div className="mb-2 mt-6 flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-[17px] font-semibold">Składniki</h3>
+          <div className="flex items-center rounded border border-foodini-border">
             <button
-              className="icon-button"
+              className="btn-icon"
               disabled={portions <= 1}
               onClick={() => setPortions(value => value - 1)}
               aria-label="Mniej porcji"
             >
               <Icon name="minus" size={16} />
             </button>
-            <span>
+            <span className="min-w-[62px] text-center text-[13px]">
               {portions} {portionLabel(portions)}
             </span>
             <button
-              className="icon-button"
+              className="btn-icon"
               disabled={portions >= 16}
               onClick={() => setPortions(value => value + 1)}
               aria-label="Więcej porcji"
@@ -119,30 +140,40 @@ export function RecipeDialog({
             </button>
           </div>
         </div>
-        <ul className="ingredient-list">
+        <ul className="mb-7 list-none divide-y divide-foodini-border p-0">
           {recipe.ingredients.map(item => (
-            <li key={`${item.id}:${item.unit}`}>
+            <li
+              key={`${item.id}:${item.unit}`}
+              className="flex items-center justify-between gap-4 py-3 text-[13px] leading-relaxed sm:text-sm"
+            >
               <span>{item.name}</span>
-              <strong>
+              <strong className="whitespace-nowrap font-medium">
                 {formatAmount((item.amount * portions) / recipe.basePortions)}{' '}
                 {unitLabels[item.unit]}
               </strong>
             </li>
           ))}
         </ul>
-        <h3>Przygotowanie</h3>
-        <ol className="instruction-list">
+        <h3 className="text-[17px] font-semibold">Przygotowanie</h3>
+        <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm leading-[1.8]">
           {recipe.instructions.map(instruction => (
-            <li key={instruction}>{instruction}</li>
+            <li key={instruction} className="pl-1">
+              {instruction}
+            </li>
           ))}
         </ol>
-        <div className="add-to-plan">
-          <div>
-            <label htmlFor="target-day">Dodaj do planu</label>
-            <p className="small muted">Ilości w planie wynikają z jego ustawień.</p>
+        <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-foodini-border pt-5">
+          <div className="w-full">
+            <label htmlFor="target-day" className="block text-[15px] font-semibold">
+              Dodaj do planu
+            </label>
+            <p className="mt-1.5 text-[13px] text-foodini-muted">
+              Ilości w planie wynikają z jego ustawień.
+            </p>
           </div>
           <select
             id="target-day"
+            className="form-input flex-1"
             value={target}
             onChange={event => setTarget(Number(event.target.value))}
             disabled={!availableDays.length}
@@ -159,7 +190,7 @@ export function RecipeDialog({
             )}
           </select>
           <button
-            className="button primary"
+            className="btn-primary"
             disabled={target < 0}
             onClick={() => onAdd(recipe.id, target)}
           >

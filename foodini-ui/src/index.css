@@ -1,3 +1,85 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --color-brand: #35634a;
+  --color-brand-dark: #254d38;
+  --color-brand-light: #edf3ed;
+  --color-foodini-text: #273c32;
+  --color-foodini-muted: #626d60;
+  --color-foodini-border: #dfe4dc;
+  --color-foodini-subtle: #f7f8f5;
+  --color-status-idle: #2e7d32;
+  --color-status-syncing: #ed6c02;
+  --color-status-error: #d32f2f;
+  --color-status-local: #9e9e9e;
+  --animate-pulse-dot: pulse-dot 1.2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+@utility btn-primary {
+  @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded px-3 sm:px-4 text-[13px] sm:text-sm font-medium bg-brand text-white transition hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer;
+}
+
+@utility btn-secondary {
+  @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded border border-foodini-border bg-white px-3 sm:px-4 text-[13px] sm:text-sm font-medium text-foodini-text transition hover:bg-foodini-subtle focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer;
+}
+
+@utility btn-icon {
+  @apply inline-grid min-h-[44px] min-w-[44px] place-items-center rounded p-2.5 text-foodini-muted transition hover:bg-brand-light hover:text-brand focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer bg-transparent;
+}
+
+@utility btn-text {
+  @apply min-h-[44px] px-1 text-sm text-brand underline underline-offset-[3px] hover:text-brand-dark focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 cursor-pointer bg-transparent;
+}
+
+@utility form-input {
+  @apply min-h-[44px] w-full rounded border border-foodini-border bg-white px-3 py-2 text-base text-foodini-text placeholder:text-foodini-muted focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2;
+}
+
+@utility form-checkbox {
+  @apply h-[18px] w-[18px] shrink-0 accent-brand cursor-pointer;
+}
+
+@utility checkbox-label {
+  @apply inline-flex min-h-[44px] items-center gap-2 text-sm cursor-pointer select-none;
+}
+
+@utility status-dot {
+  @apply h-2 w-2 rounded-full shrink-0;
+}
+
+@utility dot-idle {
+  @apply bg-status-idle;
+}
+
+@utility dot-syncing {
+  @apply bg-status-syncing animate-pulse-dot;
+}
+
+@utility dot-error {
+  @apply bg-status-error;
+}
+
+@utility dot-local {
+  @apply bg-status-local;
+}
+
+@utility dialog-modal {
+  @apply fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[min(640px,calc(100vw-1.5rem))] overflow-y-auto rounded-lg border border-foodini-border bg-white p-0 text-inherit shadow-xl backdrop:bg-black/40;
+}
+
 @font-face {
   font-family: 'DM Sans';
   font-style: normal;
@@ -22,100 +104,20 @@
 }
 
 :root {
-  font-family:
-    'DM Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
-  color: #273c32;
-  background: #fff;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-weight: 400;
-  --green: #35634a;
-  --green-dark: #254d38;
-  --muted: #626d60;
-  --border: #dfe4dc;
+  font-family: var(--font-sans);
+  color: var(--color-foodini-text);
+  background-color: #fff;
 }
 
-* {
-  box-sizing: border-box;
-}
 body {
-  margin: 0;
   min-width: 320px;
 }
-button,
-input,
-select {
-  font: inherit;
-}
-button {
-  cursor: pointer;
-}
-button,
-a,
-input,
-select {
-  -webkit-tap-highlight-color: transparent;
-}
-button {
-  color: inherit;
-}
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-button,
-input,
-select {
-  outline-offset: 4px;
-}
-:focus-visible {
-  outline: 2px solid #467b56;
-}
-button {
-  border: 0;
-}
-button,
-a {
-  touch-action: manipulation;
-}
-input,
-select {
-  min-width: 0;
-}
-a {
-  color: var(--green);
-}
-img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-svg {
-  flex-shrink: 0;
-  vertical-align: middle;
-}
-h1,
-h2,
-h3,
-p {
-  margin: 0;
-}
-h1,
-h2,
-h3 {
-  font-family: inherit;
-}
+
 ::selection {
-  background: #dce9ce;
-  color: #254d38;
+  background-color: #dce9ce;
+  color: var(--color-brand-dark);
 }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

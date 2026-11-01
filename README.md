@@ -27,7 +27,7 @@ For this POC, selected tags use **AND** matching. When a plan change alters an i
 
 Meal types are limited to `lunch` (Obiady) and `dinner` (Kolacje); `Wszystkie` shows both. Dietary tags remain available. None of the seed recipes currently carries the `low-gi` tag. Filters with no matching seed recipes display an empty state. Nutrition calculations and automatic unit conversion are not implemented.
 
-The existing stack is React, TypeScript, Vite, and ESLint. Dependency versions and available scripts are defined in [foodini-ui/package.json](foodini-ui/package.json).
+The existing stack is React, TypeScript, Vite, Tailwind CSS, and ESLint. Dependency versions and available scripts are defined in [foodini-ui/package.json](foodini-ui/package.json).
 
 ## Language and experience
 
@@ -228,9 +228,9 @@ After the first deployment, check recipe images, open a recipe, generate a plan,
 | `foodini-ui/schema.sql`            | Cloudflare D1 SQLite database schema for household state persistence                   |
 | `foodini-ui/tests/sync.test.ts`    | Unit tests for sync authentication, payload limits, and D1 upsert logic                |
 | `foodini-ui/public/images/`        | Local illustrative food photos                                                         |
-| `foodini-ui/public/fonts/`         | Bundled fonts and their OFL licenses; the simplified interface uses DM Sans throughout |
+| `foodini-ui/public/fonts/`         | Bundled DM Sans font and its OFL license; used throughout the interface                |
 
-Illustrative photos are from Unsplash: [chickpea curry](https://unsplash.com/photos/RELOvb0rrCE), [butter chicken](https://images.unsplash.com/photo-1603894584373-5ac82b2ae398), [noodles](https://unsplash.com/photos/EDoy1yjPLV0), [meatballs](https://images.unsplash.com/photo-1529042410759-befb1204b468), [stew](https://unsplash.com/photos/gbtQfadV5qY), [vegetable casserole](https://unsplash.com/photos/uHggZfKi8Ks), and [roasted meat](https://images.unsplash.com/photo-1432139555190-58524dae6a55). Font licenses: [DM Sans](foodini-ui/public/fonts/DM-Sans-OFL.txt) and [Manrope](foodini-ui/public/fonts/Manrope-OFL.txt).
+Illustrative photos are from Unsplash: [chickpea curry](https://unsplash.com/photos/RELOvb0rrCE), [butter chicken](https://images.unsplash.com/photo-1603894584373-5ac82b2ae398), [noodles](https://unsplash.com/photos/EDoy1yjPLV0), [meatballs](https://images.unsplash.com/photo-1529042410759-befb1204b468), [stew](https://unsplash.com/photos/gbtQfadV5qY), [vegetable casserole](https://unsplash.com/photos/uHggZfKi8Ks), and [roasted meat](https://images.unsplash.com/photo-1432139555190-58524dae6a55). Font license: [DM Sans](foodini-ui/public/fonts/DM-Sans-OFL.txt).
 
 Additional Unsplash photos: [salmon and broccoli](https://unsplash.com/photos/1tfY-1x5kV0), [salmon pasta](https://unsplash.com/photos/vQeLS0R9wiw), [bolognese](https://unsplash.com/photos/qits91IZv1o), [chicken salad](https://unsplash.com/photos/4V1TfWW8PtI), and [skewers](https://unsplash.com/photos/RfpGZ2x6COA). These use the [Unsplash License](https://unsplash.com/license). The bigos photo is [Bigos - 2025.02.15.jpg by Aw58](https://commons.wikimedia.org/wiki/File:Bigos_-_2025.02.15.jpg), under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), served as a resized Wikimedia thumbnail. Its attribution and license link are displayed with the recipes; retain them when reusing the image.
 
