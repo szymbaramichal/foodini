@@ -89,6 +89,7 @@ export async function pushRemoteState(
       'x-household-key': syncKey.trim(),
     },
     body: JSON.stringify({ state }),
+    keepalive: true,
   })
 
   if (!response.ok) {

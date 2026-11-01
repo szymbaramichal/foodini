@@ -161,7 +161,7 @@ export async function handleSyncPost(request: Request, env: SyncEnv): Promise<Re
     }
   }
 
-  const now = Date.now()
+  const now = Math.max(Date.now(), (existing?.updated_at ?? 0) + 1)
   const stateJson = JSON.stringify(validatedState)
 
   await env.DB.prepare(

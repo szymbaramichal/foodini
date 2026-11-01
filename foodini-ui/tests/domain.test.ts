@@ -10,6 +10,7 @@ import {
   replacePlanMeal,
   retainCheckedItems,
   shoppingSignature,
+  toggleItemChecked,
   togglePlanLock,
 } from '../src/domain.ts'
 import { createInitialState, parseSavedState } from '../src/storage.ts'
@@ -381,4 +382,29 @@ test('four-serving beef stew scales to a two-person plan without counting leftov
   assert.equal(items.find(item => item.ingredientId === 'beef-stew')?.amount, 1200)
   assert.equal(items.find(item => item.ingredientId === 'bacon')?.amount, 450)
   assert.doesNotThrow(() => parseSavedState(JSON.stringify({ ...createInitialState(), plan })))
+})
+
+test('toggleItemChecked toggles items idempotently and safely for fast clicks', () => {
+  const item = {
+    id: 'canned-chickpeas:g',
+    name: 'Ciecierzyca',
+    amount: 480,
+    unit: 'g' as const,
+    category: 'canned_condiments' as const,
+    isChecked: false,
+    isCustom: false,
+  }
+  let checked: Record<string, string> = {}
+
+  // 1st click: checks
+  checked = toggleItemChecked(checked, item)
+  assert.equal(checked[item.id], '480:g')
+
+  // 2nd click: unchecks (even if item.isChecked was still false in stale props)
+  checked = toggleItemChecked(checked, item)
+  assert.equal(checked[item.id], undefined)
+
+  // 3rd click: checks again
+  checked = toggleItemChecked(checked, item)
+  assert.equal(checked[item.id], '480:g')
 })

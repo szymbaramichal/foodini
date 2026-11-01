@@ -7,6 +7,7 @@ import {
   replacePlanMeal,
   retainCheckedItems,
   shoppingSignature,
+  toggleItemChecked,
   togglePlanLock,
 } from './domain.ts'
 import { loadSavedState, STORAGE_KEY } from './storage.ts'
@@ -121,17 +122,18 @@ function App() {
 
   function toggleShoppingItem(item: ShoppingItem) {
     setSaved(current => {
-      if (item.isCustom)
+      if (item.isCustom) {
         return {
           ...current,
           customItems: current.customItems.map(entry =>
             entry.id === item.id ? { ...entry, isChecked: !entry.isChecked } : entry,
           ),
         }
-      const checked = { ...current.checked }
-      if (item.isChecked) delete checked[item.id]
-      else checked[item.id] = shoppingSignature(item)
-      return { ...current, checked }
+      }
+      return {
+        ...current,
+        checked: toggleItemChecked(current.checked, item),
+      }
     })
   }
 

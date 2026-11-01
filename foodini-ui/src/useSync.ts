@@ -21,6 +21,7 @@ export function useSync(
   const isInitialSyncDone = useRef(false)
   const lastSyncedSerialized = useRef<string>('')
   const savedRef = useRef(saved)
+  const isPushing = useRef(false)
 
   useEffect(() => {
     savedRef.current = saved
@@ -62,22 +63,41 @@ export function useSync(
   useEffect(() => {
     if (!syncKey || !isInitialSyncDone.current) return
 
-    const currentSerialized = JSON.stringify(saved)
-    if (currentSerialized === lastSyncedSerialized.current) return
+    if (JSON.stringify(saved) === lastSyncedSerialized.current) return
 
     setSyncStatus('syncing')
     const timer = window.setTimeout(async () => {
+      if (isPushing.current) return
+
       try {
-        await pushRemoteState(syncKey, saved)
-        lastSyncedSerialized.current = currentSerialized
+        isPushing.current = true
+        while (JSON.stringify(savedRef.current) !== lastSyncedSerialized.current) {
+          const snapshot = savedRef.current
+          const serialized = JSON.stringify(snapshot)
+          await pushRemoteState(syncKey, snapshot)
+          lastSyncedSerialized.current = serialized
+        }
         setSyncStatus('idle')
       } catch {
         setSyncStatus('error')
+      } finally {
+        isPushing.current = false
       }
-    }, 800)
+    }, 400)
 
     return () => window.clearTimeout(timer)
   }, [saved, syncKey])
+
+  useEffect(() => {
+    if (!syncKey) return
+    const flush = () => {
+      if (!isPushing.current && JSON.stringify(savedRef.current) !== lastSyncedSerialized.current) {
+        void pushRemoteState(syncKey, savedRef.current)
+      }
+    }
+    window.addEventListener('pagehide', flush)
+    return () => window.removeEventListener('pagehide', flush)
+  }, [syncKey])
 
   async function handleSaveSyncKey(newKey: string) {
     setStoredSyncKey(newKey)
@@ -90,10 +110,11 @@ export function useSync(
         lastSyncedSerialized.current = JSON.stringify(result.state)
         notify('Połączono! Wczytano dane z chmury.')
       } else {
-        await pushRemoteState(newKey, saved)
-        lastSyncedSerialized.current = JSON.stringify(saved)
+        await pushRemoteState(newKey, savedRef.current)
+        lastSyncedSerialized.current = JSON.stringify(savedRef.current)
         notify('Połączono! Zapisano bieżący plan w chmurze.')
       }
+      isInitialSyncDone.current = true
       setSyncStatus('idle')
     } catch (err) {
       setSyncStatus('error')
@@ -105,6 +126,7 @@ export function useSync(
     clearStoredSyncKey()
     setSyncKey('')
     setSyncStatus('local')
+    isInitialSyncDone.current = true
     notify('Odłączono synchronizację. Dane pozostają w pamięci tej przeglądarki.')
   }
 

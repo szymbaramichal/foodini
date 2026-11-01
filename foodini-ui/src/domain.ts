@@ -207,6 +207,20 @@ export function togglePlanLock(
 
 export const shoppingSignature = (item: ShoppingItem) => `${item.amount}:${item.unit}`
 
+export function toggleItemChecked(
+  checked: Record<string, string>,
+  item: ShoppingItem,
+): Record<string, string> {
+  const next = { ...checked }
+  const sig = shoppingSignature(item)
+  if (next[item.id] === sig) {
+    delete next[item.id]
+  } else {
+    next[item.id] = sig
+  }
+  return next
+}
+
 export function aggregateShoppingList(plan: MealPlanDay[], recipes: Recipe[]): ShoppingItem[] {
   const items = new Map<string, ShoppingItem>()
   for (const day of plan) {
