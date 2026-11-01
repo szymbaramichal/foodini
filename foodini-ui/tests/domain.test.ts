@@ -329,7 +329,7 @@ test('legacy and removed recipes in saved state are migrated cleanly to valid cu
 })
 
 test('the seed catalog has valid quantities, identifiers, tags, and Polish instructions', () => {
-  assert.equal(recipes.length, 32)
+  assert.equal(recipes.length, 33)
   assert.equal(new Set(recipes.map(recipe => recipe.id)).size, recipes.length)
   for (const recipe of recipes) {
     assert.ok(recipe.basePortions > 0)

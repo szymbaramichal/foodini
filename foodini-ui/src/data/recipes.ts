@@ -352,7 +352,13 @@ export const recipes: Recipe[] = [
     difficulty: 'easy',
     basePortions: 2,
     tags: ['low-gi', 'quick', 'vegetarian'],
-    imageUrl: '/images/bake.jpg',
+    imageUrl: '/images/mushroom-pasta.jpg',
+    imageCredit: {
+      author: 'Zoshua Colah',
+      sourceUrl: 'https://unsplash.com/photos/pasta-with-creamy-mushroom-sauce-G99JLO2lDyQ',
+      licenseName: 'Unsplash License',
+      licenseUrl: 'https://unsplash.com/license',
+    },
     ingredients: [
       ingredient('mushrooms', 'Kurki lub pieczarki', 300, 'g', 'produce'),
       ingredient('cream', 'Śmietanka 30%', 150, 'ml', 'dairy'),
@@ -515,7 +521,14 @@ export const recipes: Recipe[] = [
     difficulty: 'easy',
     basePortions: 2,
     tags: ['low-gi', 'quick', 'high-protein', 'dairy-free', 'one-pot'],
-    imageUrl: '/images/konjac.jpg',
+    imageUrl: '/images/chicken-stir-fry.jpg',
+    imageCredit: {
+      author: 'Denis',
+      sourceUrl:
+        'https://unsplash.com/photos/chicken-stir-fry-with-noodles-and-vegetables-in-a-bowl-kTROrGtnm7U',
+      licenseName: 'Unsplash License',
+      licenseUrl: 'https://unsplash.com/license',
+    },
     ingredients: [
       ingredient('stir-fry-veggies', 'Warzywa na patelnię (mrożone)', 400, 'g', 'produce'),
       chicken(250),
@@ -605,7 +618,13 @@ export const recipes: Recipe[] = [
     difficulty: 'easy',
     basePortions: 2,
     tags: ['low-gi', 'high-protein', 'dairy-free', 'one-pot'],
-    imageUrl: '/images/bake.jpg',
+    imageUrl: '/images/kaszotto.jpg',
+    imageCredit: {
+      author: 'Zoshua Colah',
+      sourceUrl: 'https://unsplash.com/photos/mushroom-risotto-with-garlic-and-arugula-noaP9Z9Ta2Y',
+      licenseName: 'Unsplash License',
+      licenseUrl: 'https://unsplash.com/license',
+    },
     ingredients: [
       chicken(300),
       ingredient('button-mushrooms', 'Pieczarki', 250, 'g', 'produce'),
@@ -658,6 +677,51 @@ export const recipes: Recipe[] = [
       'W misce wymieszaj posiekane brokuły, mozzarellę, suszone pomidory oraz przeciśnięty przez praskę czosnek.',
       'W każdej piersi z kurczaka wytnij głęboką kieszeń. Mięso natrzyj z zewnątrz i w środku oliwą, słodką papryką, solą oraz pieprzem.',
       'Wypełnij kieszenie farszem i zepnij wykałaczkami. Ułóż w naczyniu żaroodpornym i piecz przez 25–30 minut, aż mięso będzie soczyste i w pełni upieczone.',
+    ],
+  },
+  {
+    id: 'stuffed-zucchini',
+    name: 'Faszerowana cukinia',
+    description:
+      'Zapiekane łódeczki z cukinii faszerowane mięsem mielonym w aromatycznym sosie pomidorowym, pod zapieczoną mozzarellą i parmezanem.',
+    mealType: 'lunch',
+    prepTimeMinutes: 40,
+    difficulty: 'easy',
+    basePortions: 2,
+    tags: ['low-gi', 'high-protein'],
+    imageUrl: '/images/stuffed-zucchini.jpg',
+    imageCredit: {
+      author: 'EgorovaSvetlana',
+      sourceUrl:
+        'https://commons.wikimedia.org/wiki/File:Stuffed_Zucchini_Cooking_in_Newton_Massachusetts.jpg',
+      licenseName: 'CC BY-SA 4.0',
+      licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+    },
+    ingredients: [
+      ingredient('zucchini', 'Cukinia', 2, 'pcs', 'produce'),
+      ingredient(
+        'ground-meat',
+        'Mięso mielone (np. z indyka lub szynki)',
+        200,
+        'g',
+        'meat_fish_tofu',
+      ),
+      ingredient('canned-tomatoes', 'Pomidory krojone w puszce', 400, 'g', 'canned_condiments'),
+      ingredient('mozzarella', 'Ser mozzarella', 125, 'g', 'dairy'),
+      ingredient('parmesan', 'Ser parmezan (lub Grana Padano)', 30, 'g', 'dairy'),
+      onion(),
+      garlic(),
+      oil(),
+      ingredient('oregano', 'Oregano suszone', 1, 'tsp', 'canned_condiments'),
+      salt(),
+      blackPepper(),
+    ],
+    instructions: [
+      'Rozgrzej piekarnik do 190°C. Cukinie umyj, przekrój wzdłuż na pół i łyżką wydrąż miąższ (pozostawiając ok. 1 cm brzegi). Wydrążony miąższ drobno posiekaj.',
+      'Cebulę i czosnek drobno posiekaj. Na patelni rozgrzej oliwę, zeszklij cebulę, po czym dodaj czosnek oraz mięso mielone i smaż przez około 5 minut, rozdrabniając je łopatką.',
+      'Do mięsa dodaj posiekany miąższ z cukinii, pomidory krojone z puszki, oregano, szczyptę soli i pieprzu. Gotuj na małym ogniu przez około 10 minut, aż sos odparuje i zgęstnieje.',
+      'Ułóż połówki cukinii w naczyniu żaroodpornym, napełnij je przygotowanym farszem, a na wierzchu rozłóż porwaną lub pokrojoną mozzarellę i posyp startym parmezanem.',
+      'Wstaw do piekarnika i piecz przez 25–30 minut, aż cukinia będzie miękka, a ser ładnie się stopi i lekko przyrumieni.',
     ],
   },
 
