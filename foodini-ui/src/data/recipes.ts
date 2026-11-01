@@ -1140,7 +1140,6 @@ export const recipes: Recipe[] = [
       ingredient('apple', 'Jabłko', 3, 'pcs', 'produce'),
       ingredient('butter', 'Masło', 25, 'g', 'dairy'),
       ingredient('cinnamon', 'Cynamon mielony', 1, 'tsp', 'canned_condiments'),
-      ingredient('quark', 'Twaróg półtłusty', 150, 'g', 'dairy'),
       ingredient('erythritol', 'Erytrytol (lub ksylitol)', 1, 'tbsp', 'grains_pantry'),
       ingredient('lemon', 'Cytryna', 0.5, 'pcs', 'produce'),
     ],
@@ -1149,7 +1148,7 @@ export const recipes: Recipe[] = [
       'Jabłka obierz ze skórki, usuń gniazda nasienne i zetrzyj na tarce o grubych oczkach lub pokrój w drobną kostkę. Skrop sokiem z cytryny.',
       'Na dużej patelni rozpuść masło, wrzuć jabłka, cynamon oraz erytrytol. Praż na średnim ogniu przez 5–7 minut, aż jabłka zmiękną i puszczą sok.',
       'Dodaj ugotowany makaron na patelnię z jabłkami i dokładnie wymieszaj, aby makaron połączył się z maślano-cynamonowym sosem.',
-      'Wyłóż gorący makaron na talerze i posyp z wierzchu pokruszonym twarogiem półtłustym.',
+      'Wyłóż gorący makaron na talerze.',
     ],
   },
 ]
