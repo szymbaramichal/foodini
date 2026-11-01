@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { tagLabels, unitLabels } from '../data/recipes.ts'
 import { formatAmount, isBatchLocked, portionLabel } from '../domain.ts'
-import type { MealPlanDay, Recipe } from '../types.ts'
+import type { MealPlanDay, MealType, Recipe } from '../types.ts'
 import { Icon } from './Icon.tsx'
 
 const difficultyLabels: Record<Recipe['difficulty'], string> = {
@@ -19,12 +19,13 @@ export function RecipeDialog({
   recipe: Recipe
   plan: MealPlanDay[]
   onClose: () => void
-  onAdd: (recipeId: string, dayIndex: number) => void
+  onAdd: (recipeId: string, dayIndex: number, mealType: MealType) => void
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const [portions, setPortions] = useState(recipe.basePortions)
   const availableDays = plan.filter(
-    (day, index) => !day.isLeftoverDay && !isBatchLocked(plan, index),
+    (day, index) =>
+      !day[recipe.mealType].isLeftoverDay && !isBatchLocked(plan, index, recipe.mealType),
   )
   const [target, setTarget] = useState(availableDays[0]?.dayIndex ?? -1)
   const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
@@ -33,11 +34,6 @@ export function RecipeDialog({
     const node = dialog.current
     if (node && !node.open) {
       node.showModal()
-    }
-    return () => {
-      if (node?.open) {
-        node.close()
-      }
     }
   }, [])
 
@@ -165,7 +161,7 @@ export function RecipeDialog({
         <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-foodini-border pt-5">
           <div className="w-full">
             <label htmlFor="target-day" className="block text-[15px] font-semibold">
-              Dodaj do planu
+              Dodaj do planu ({recipe.mealType === 'lunch' ? 'jako obiad' : 'jako kolacja'})
             </label>
             <p className="mt-1.5 text-[13px] text-foodini-muted">
               Ilości w planie wynikają z jego ustawień.
@@ -182,7 +178,7 @@ export function RecipeDialog({
               availableDays.map(day => (
                 <option value={day.dayIndex} key={day.dayIndex}>
                   {day.dayLabel}
-                  {day.coversDays === 2 ? ' + kolejny dzień' : ''}
+                  {day[recipe.mealType].coversDays === 2 ? ' + kolejny dzień' : ''}
                 </option>
               ))
             ) : (
@@ -192,7 +188,7 @@ export function RecipeDialog({
           <button
             className="btn-primary"
             disabled={target < 0}
-            onClick={() => onAdd(recipe.id, target)}
+            onClick={() => onAdd(recipe.id, target, recipe.mealType)}
           >
             <Icon name="plus" size={18} />
             Dodaj

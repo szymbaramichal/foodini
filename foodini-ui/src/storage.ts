@@ -1,17 +1,17 @@
 import { categoryLabels, recipes, unitLabels } from './data/recipes.ts'
 import { generatePlan } from './domain.ts'
-import type { SavedState } from './types.ts'
+import type { MealType, SavedState } from './types.ts'
 
-export const STORAGE_KEY = 'foodini:poc:v1'
+export const STORAGE_KEY = 'foodini:poc:v2'
 
 export function createInitialState(): SavedState {
   const settings = { duration: 5, people: 2, batch: true }
   let index = 0
-  const rolls = [0, 0, 0.99]
+  const rolls = [0, 0, 0, 0, 0, 0, 0, 0]
   return {
-    version: 1,
+    version: 2,
     settings,
-    plan: generatePlan(recipes.slice(0, 3), settings, [], () => rolls[index++] ?? 0),
+    plan: generatePlan(recipes, settings, [], () => rolls[index++] ?? 0),
     customItems: [],
     checked: {},
   }
@@ -26,7 +26,7 @@ export function parseSavedState(text: string): SavedState {
   const value: unknown = JSON.parse(text)
   if (
     !isRecord(value) ||
-    value.version !== 1 ||
+    value.version !== 2 ||
     !isRecord(value.settings) ||
     !Array.isArray(value.plan) ||
     !Array.isArray(value.customItems) ||
@@ -49,31 +49,48 @@ export function parseSavedState(text: string): SavedState {
       !isRecord(day) ||
       day.dayIndex !== index ||
       typeof day.dayLabel !== 'string' ||
-      !recipes.some(recipe => recipe.id === day.recipeId) ||
-      !isPositiveInteger(day.servings) ||
-      day.servings > 16 ||
-      (day.coversDays !== 1 && day.coversDays !== 2) ||
-      typeof day.isLeftoverDay !== 'boolean' ||
-      typeof day.isLocked !== 'boolean'
+      !isRecord(day.lunch) ||
+      !isRecord(day.dinner)
     )
       throw new Error('Invalid day')
-    if (
-      day.isLeftoverDay &&
-      (!index ||
-        plan[index - 1].isLeftoverDay ||
-        plan[index - 1].coversDays !== 2 ||
-        plan[index - 1].recipeId !== day.recipeId ||
-        day.coversDays !== 1 ||
-        plan[index - 1].servings !== day.servings * 2 ||
-        plan[index - 1].isLocked !== day.isLocked)
-    )
-      throw new Error('Orphan leftover')
-    if (
-      !day.isLeftoverDay &&
-      day.coversDays === 2 &&
-      (!plan[index + 1]?.isLeftoverDay || plan[index + 1].recipeId !== day.recipeId)
-    )
-      throw new Error('Incomplete batch')
+
+    const slots: { slot: Record<string, unknown>; mealType: MealType }[] = [
+      { slot: day.lunch as Record<string, unknown>, mealType: 'lunch' },
+      { slot: day.dinner as Record<string, unknown>, mealType: 'dinner' },
+    ]
+
+    for (const { slot, mealType } of slots) {
+      if (
+        typeof slot.recipeId !== 'string' ||
+        !recipes.some(recipe => recipe.id === slot.recipeId && recipe.mealType === mealType) ||
+        !isPositiveInteger(slot.servings) ||
+        slot.servings > 16 ||
+        (slot.coversDays !== 1 && slot.coversDays !== 2) ||
+        typeof slot.isLeftoverDay !== 'boolean' ||
+        typeof slot.isLocked !== 'boolean'
+      )
+        throw new Error('Invalid meal slot')
+
+      if (
+        slot.isLeftoverDay &&
+        (!index ||
+          plan[index - 1][mealType].isLeftoverDay ||
+          plan[index - 1][mealType].coversDays !== 2 ||
+          plan[index - 1][mealType].recipeId !== slot.recipeId ||
+          slot.coversDays !== 1 ||
+          plan[index - 1][mealType].servings !== (slot.servings as number) * 2 ||
+          plan[index - 1][mealType].isLocked !== slot.isLocked)
+      )
+        throw new Error('Orphan leftover')
+
+      if (
+        !slot.isLeftoverDay &&
+        slot.coversDays === 2 &&
+        (!plan[index + 1]?.[mealType]?.isLeftoverDay ||
+          plan[index + 1][mealType].recipeId !== slot.recipeId)
+      )
+        throw new Error('Incomplete batch')
+    }
   }
   if (customItems.length > 500) throw new Error('Too many custom items')
   const ids = new Set<string>()

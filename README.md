@@ -13,19 +13,19 @@ This README is the single source of truth for the product concept, domain rules,
 
 The frontend in `foodini-ui/` is a working browser-only proof of concept with a Polish interface. It includes:
 
-- Thirteen recipes with measured ingredients and Polish cooking instructions: chickpea curry with brown rice, butter chicken, konjac noodles with chicken and peanut-soy sauce, turkey meatballs, beef stew, a vegetable bake, roasted pork loin, salmon with broccoli and buckwheat in vinaigrette, creamy salmon pasta with sun-dried tomatoes, bolognese with equal dry weights of wheat and chickpea pasta, bigos, chicken salad with garlic sauce, and chicken-and-bacon skewers with zucchini, pepper, and onion.
-- Recipe search by name or ingredient (including searches without Polish accents), meal-type filters, tag filters, and random selection from the matching recipes.
+- Thirteen low-GI recipes with measured ingredients and Polish cooking instructions: chickpea curry with brown rice, butter chicken, konjac noodles with chicken and peanut-soy sauce, turkey meatballs, beef stew, a vegetable bake, roasted pork loin, salmon with broccoli and buckwheat in vinaigrette, creamy salmon pasta with sun-dried tomatoes, bolognese with equal dry weights of wheat and chickpea pasta, bigos, chicken salad with garlic sauce, and chicken-and-bacon skewers with zucchini, pepper, and onion.
+- Recipe search by name or ingredient (including searches without Polish accents), organized into two main tabs: dinners and lunches (`Kolacje` and `Obiady`). All recipes are low GI, so tag filter buttons are omitted from the main page.
 - Recipe details with ingredient quantities scaled to the selected portions.
-- A 3–7 day planner with 1–8 portions per day, optional two-day batches, meal replacement, and locks that preserve a whole batch.
+- A 3–7 day planner with two meal slots per day (lunch and dinner), 1–8 portions per meal, optional two-day batches, meal replacement, and locks that preserve a whole batch.
 - Shopping lists grouped by aisle, checkboxes, custom products with quantities and categories, clipboard copying, Web Share API export (to Google Keep, Apple Notes, or messaging), and text-file download.
 - Browser `localStorage` persistence with optional cross-device cloud synchronization backed by Cloudflare Pages Functions and Cloudflare D1 (SQLite), secured with a household sync key and protected against database flooding.
 - Responsive layouts with three simple tabs in a sticky header, sync status pill indicator, compact recipe rows, and a shopping checklist. The custom-product form expands under `Dodaj produkt`.
 
-The first visit starts with a sample five-day plan for two people. Without cloud synchronization configured, data stays in the current browser and origin; clearing browser storage removes it. When a household sync key is configured in the header sync settings, the plan and shopping list synchronize seamlessly across devices via Cloudflare D1. All photos and fonts are served locally. Photos illustrate the dishes and do not show the exact recipes.
+The first visit starts with a sample five-day plan for two people covering lunches and dinners. Without cloud synchronization configured, data stays in the current browser and origin; clearing browser storage removes it. When a household sync key is configured in the header sync settings, the plan and shopping list synchronize seamlessly across devices via Cloudflare D1. All photos and fonts are served locally. Photos illustrate the dishes and do not show the exact recipes.
 
-For this POC, selected tags use **AND** matching. When a plan change alters an ingredient's required quantity, that ingredient becomes unchecked; unchanged quantities keep their checkmarks, and custom items remain. Changes to planner settings take effect when the user chooses `Ułóż nowy plan`; locked batches retain their original recipes and portions. The portion selector in recipe details previews ingredient scaling; adding a recipe to the plan uses that plan slot's portions.
+When a plan change alters an ingredient's required quantity, that ingredient becomes unchecked; unchanged quantities keep their checkmarks, and custom items remain. Changes to planner settings take effect when the user chooses `Ułóż nowy plan`; locked batches retain their original recipes and portions. The portion selector in recipe details previews ingredient scaling; adding a recipe to the plan uses that plan slot's portions.
 
-Meal types are limited to `lunch` (Obiady) and `dinner` (Kolacje); `Wszystkie` shows both. Dietary tags remain available. None of the seed recipes currently carries the `low-gi` tag. Filters with no matching seed recipes display an empty state. Nutrition calculations and automatic unit conversion are not implemented.
+The application exclusively supports dinners and lunches (no breakfasts). All catalog recipes carry the `low-gi` tag. Nutrition calculations and automatic unit conversion are not implemented.
 
 The existing stack is React, TypeScript, Vite, Tailwind CSS, and ESLint. Dependency versions and available scripts are defined in [foodini-ui/package.json](foodini-ui/package.json).
 
@@ -42,14 +42,14 @@ The existing stack is React, TypeScript, Vite, Tailwind CSS, and ESLint. Depende
 
 ### Meal preparation and planning
 
-- Start with a seeded catalog of realistic Polish recipes, including measured ingredients, preparation time, portions, and step-by-step instructions.
-- Browse recipes and search by recipe name or ingredient.
-- Limit meal-type filters to `Obiady` and `Kolacje`, with `Wszystkie` to view both. Also filter by dietary or lifestyle **tags**, such as low GI (`Niski IG`), dairy-free (`Bez nabiału`), quick (`Szybkie`, up to 25 minutes), vegetarian (`Wegetariańskie`), vegan (`Wegańskie`), high-protein (`Wysokobiałkowe`), and one-pot (`Jednogarnkowe`).
-- Let users choose a recipe or use `Wylosuj posiłek` to randomly select one that matches the active filters. Show an empty state when nothing matches.
+- Start with a seeded catalog of realistic Polish low-GI recipes, including measured ingredients, preparation time, portions, and step-by-step instructions.
+- Browse recipes and search by recipe name or ingredient, organized into two main tabs: `Obiady` (lunches) and `Kolacje` (dinners).
+- All recipes are low GI by default; category tag filter buttons are not used on the main page.
+- Let users choose a recipe or use `Wylosuj posiłek` to randomly select one from the active tab matching any search query. Show an empty state when nothing matches.
 - Show recipe details in a modal, drawer, or dedicated view with ingredients, a portion selector, and cooking instructions.
-- Generate a meal plan for **5 days by default**, adjustable from **3 to 7 days**, with a configurable number of portions per day.
+- Generate a meal plan for **5 days by default**, adjustable from **3 to 7 days**, planning two meals per day: **Obiad** (lunch) and **Kolacja** (dinner), with a configurable number of portions per meal.
 - Support optional **two-day batch cooking**: prepare enough portions on the first day, and mark the following day as `Porcja z wczoraj`.
-- Allow users to lock a planned meal so regeneration preserves it, and replace or re-roll an individual unlocked meal.
+- Allow users to lock a planned meal slot so regeneration preserves it, and replace or re-roll an individual unlocked meal.
 
 ### Shopping list preparation
 
@@ -118,21 +118,28 @@ These are the intended domain contracts. Keep domain calculations separate from 
 | `canned_condiments` | Przetwory i przyprawy | Canned goods, oils, spices, passata    |
 | `other`             | Inne                  | Other groceries and custom items       |
 
+### Meal slot (`MealSlot`)
+
+| Field           | Type      | Meaning                                              |
+| --------------- | --------- | ---------------------------------------------------- |
+| `recipeId`      | `string`  | Reference to `Recipe.id`                             |
+| `servings`      | `number`  | Total portions prepared on a cooking day             |
+| `coversDays`    | `number`  | `1` for one day or `2` for a two-day batch           |
+| `isLeftoverDay` | `boolean` | Whether this slot consumes the preceding day's batch |
+| `isLocked`      | `boolean` | Whether plan regeneration must preserve this entry   |
+
 ### Meal plan day (`MealPlanDay`)
 
-The initial model assigns one recipe to each day of the plan.
+Each planned day contains two meal slots: lunch and dinner (no breakfasts).
 
-| Field           | Type      | Meaning                                             |
-| --------------- | --------- | --------------------------------------------------- |
-| `dayIndex`      | `number`  | Zero-based index within the plan                    |
-| `dayLabel`      | `string`  | Polish label, e.g. `Dzień 1` or `Poniedziałek`      |
-| `recipeId`      | `string`  | Reference to `Recipe.id`                            |
-| `servings`      | `number`  | Total portions prepared on a cooking day            |
-| `coversDays`    | `number`  | `1` for one day or `2` for a two-day batch          |
-| `isLeftoverDay` | `boolean` | Whether this day consumes the preceding day's batch |
-| `isLocked`      | `boolean` | Whether plan regeneration must preserve this entry  |
+| Field      | Type       | Meaning                                        |
+| ---------- | ---------- | ---------------------------------------------- |
+| `dayIndex` | `number`   | Zero-based index within the plan               |
+| `dayLabel` | `string`   | Polish label, e.g. `Dzień 1` or `Poniedziałek` |
+| `lunch`    | `MealSlot` | Planned lunch meal slot                        |
+| `dinner`   | `MealSlot` | Planned dinner meal slot                       |
 
-On a cooking day, `servings` already includes all portions for `coversDays`; do not multiply by `coversDays` again. Skip leftover entries when generating ingredient totals. A leftover entry must refer to the same recipe as its cooking day. Replacing or regenerating either day must keep the batch consistent and respect locks on both days. A two-day batch must fit within the plan duration.
+On a cooking day, `servings` already includes all portions for `coversDays`; do not multiply by `coversDays` again. Skip leftover entries when generating ingredient totals. A leftover entry must refer to the same recipe as its cooking day. Replacing or regenerating either day must keep the batch consistent and respect locks on both days. A two-day batch must fit within the plan duration. Lunch and dinner slots maintain independent batches, locks, and rerolls.
 
 ### Shopping item (`ShoppingItem`)
 
@@ -215,20 +222,21 @@ After the first deployment, check recipe images, open a recipe, generate a plan,
 
 ## POC source map and assets
 
-| Path                               | Responsibility                                                                         |
-| ---------------------------------- | -------------------------------------------------------------------------------------- |
-| `foodini-ui/src/App.tsx`           | Connected recipe, planner, and shopping views                                          |
-| `foodini-ui/src/components/`       | Recipe details, household sync dialog, and shared SVG icons                            |
-| `foodini-ui/src/data/recipes.ts`   | Thirteen Polish recipes, tag labels, units, and shopping categories                    |
-| `foodini-ui/src/types.ts`          | Domain types                                                                           |
-| `foodini-ui/src/domain.ts`         | Filtering, plan generation, batch operations, scaling, and aggregation                 |
-| `foodini-ui/src/storage.ts`        | Initial sample state and validation of persisted data                                  |
-| `foodini-ui/src/sync.ts`           | Client-side sync manager, remote fetch/push, and key persistence                       |
-| `foodini-ui/functions/api/sync.ts` | Cloudflare Pages Function endpoint: auth check, payload validation, and D1 SQLite sync |
-| `foodini-ui/schema.sql`            | Cloudflare D1 SQLite database schema for household state persistence                   |
-| `foodini-ui/tests/sync.test.ts`    | Unit tests for sync authentication, payload limits, and D1 upsert logic                |
-| `foodini-ui/public/images/`        | Local illustrative food photos                                                         |
-| `foodini-ui/public/fonts/`         | Bundled DM Sans font and its OFL license; used throughout the interface                |
+| Path                               | Responsibility                                                                                          |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `foodini-ui/src/App.tsx`           | Connected recipe, planner, and shopping views                                                           |
+| `foodini-ui/src/components/`       | Header, recipe details, view components (recipes, planner, shopping), sync dialog, and shared SVG icons |
+| `foodini-ui/src/useSync.ts`        | React hook orchestrating Cloudflare D1 household sync and status                                        |
+| `foodini-ui/src/data/recipes.ts`   | Thirteen Polish recipes, tag labels, units, and shopping categories                                     |
+| `foodini-ui/src/types.ts`          | Domain types                                                                                            |
+| `foodini-ui/src/domain.ts`         | Filtering, plan generation, batch operations, scaling, and aggregation                                  |
+| `foodini-ui/src/storage.ts`        | Initial sample state and validation of persisted data                                                   |
+| `foodini-ui/src/sync.ts`           | Client-side sync manager, remote fetch/push, and key persistence                                        |
+| `foodini-ui/functions/api/sync.ts` | Cloudflare Pages Function endpoint: auth check, payload validation, and D1 SQLite sync                  |
+| `foodini-ui/schema.sql`            | Cloudflare D1 SQLite database schema for household state persistence                                    |
+| `foodini-ui/tests/sync.test.ts`    | Unit tests for sync authentication, payload limits, and D1 upsert logic                                 |
+| `foodini-ui/public/images/`        | Local illustrative food photos                                                                          |
+| `foodini-ui/public/fonts/`         | Bundled DM Sans font and its OFL license; used throughout the interface                                 |
 
 Illustrative photos are from Unsplash: [chickpea curry](https://unsplash.com/photos/RELOvb0rrCE), [butter chicken](https://images.unsplash.com/photo-1603894584373-5ac82b2ae398), [noodles](https://unsplash.com/photos/EDoy1yjPLV0), [meatballs](https://images.unsplash.com/photo-1529042410759-befb1204b468), [stew](https://unsplash.com/photos/gbtQfadV5qY), [vegetable casserole](https://unsplash.com/photos/uHggZfKi8Ks), and [roasted meat](https://images.unsplash.com/photo-1432139555190-58524dae6a55). Font license: [DM Sans](foodini-ui/public/fonts/DM-Sans-OFL.txt).
 
@@ -245,4 +253,4 @@ Additional Unsplash photos: [salmon and broccoli](https://unsplash.com/photos/1t
 7. For application changes, run `npm run check` from `foodini-ui/` (tests, lint, and production build). Add focused tests when introducing domain calculations, especially portion scaling, ingredient aggregation, and batch cooking. Check affected flows on mobile and desktop when changing the UI.
 8. Update this README when agreed requirements, setup commands, or implementation status change. Keep product rules here; other documentation should link here rather than repeat them.
 
-The POC defaults above can be refined as the product develops. Further scope decisions remain open, including multiple meal slots per day, configurable AND/OR tag matching, a larger recipe catalog, and synchronization between devices. The initial domain model describes one recipe per day; expand it when that scope is agreed.
+The POC defaults above provide two meal slots per day (lunch and dinner, with no breakfasts). Further scope decisions remain open, including configurable AND/OR tag matching, a larger recipe catalog, and synchronization between devices.

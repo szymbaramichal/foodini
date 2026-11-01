@@ -1,4 +1,12 @@
-import type { MealPlanDay, PlanSettings, Recipe, RecipeTag, ShoppingItem } from './types.ts'
+import type {
+  MealPlanDay,
+  MealSlot,
+  MealType,
+  PlanSettings,
+  Recipe,
+  RecipeTag,
+  ShoppingItem,
+} from './types.ts'
 
 export const normalizeText = (text: string) =>
   text
@@ -10,14 +18,14 @@ export const normalizeText = (text: string) =>
 export function filterRecipes(
   recipes: Recipe[],
   query: string,
-  tags: RecipeTag[],
-  mealType: string,
+  tags: RecipeTag[] = [],
+  mealType = '',
 ): Recipe[] {
   const search = normalizeText(query.trim())
   return recipes.filter(
     recipe =>
       (!mealType || recipe.mealType === mealType) &&
-      tags.every(tag => recipe.tags.includes(tag)) &&
+      (tags.length === 0 || tags.every(tag => recipe.tags.includes(tag))) &&
       (!search ||
         normalizeText(
           [recipe.name, recipe.description, ...recipe.ingredients.map(item => item.name)].join(' '),
@@ -35,13 +43,71 @@ export function pickRecipe(
   return candidates[Math.floor(random() * candidates.length)]
 }
 
-export function getBatchStart(plan: MealPlanDay[], index: number): number {
-  return plan[index]?.isLeftoverDay ? index - 1 : index
+export function getBatchStart(plan: MealPlanDay[], index: number, mealType: MealType): number {
+  return plan[index]?.[mealType].isLeftoverDay ? index - 1 : index
 }
 
-export function isBatchLocked(plan: MealPlanDay[], index: number): boolean {
-  const start = getBatchStart(plan, index)
-  return plan.slice(start, start + (plan[start]?.coversDays ?? 1)).some(day => day.isLocked)
+export function isBatchLocked(plan: MealPlanDay[], index: number, mealType: MealType): boolean {
+  const start = getBatchStart(plan, index, mealType)
+  const covers = plan[start]?.[mealType]?.coversDays ?? 1
+  return plan.slice(start, start + covers).some(day => day[mealType]?.isLocked)
+}
+
+export function isSlotLocked(slots: MealSlot[], index: number): boolean {
+  const slot = slots[index]
+  if (!slot) return false
+  const start = slot.isLeftoverDay ? index - 1 : index
+  const covers = slots[start]?.coversDays ?? 1
+  return slots.slice(start, start + covers).some(s => s?.isLocked)
+}
+
+export function generateSlotPlan(
+  pool: Recipe[],
+  settings: PlanSettings,
+  previousSlots: MealSlot[] = [],
+  random = Math.random,
+): MealSlot[] {
+  if (!pool.length) {
+    throw new Error('Brak przepisów pasujących do filtrów. Zmień filtry i spróbuj ponownie.')
+  }
+  const slots: MealSlot[] = []
+  for (let index = 0; index < previousSlots.length; index++) {
+    if (isSlotLocked(previousSlots, index)) {
+      if (index >= settings.duration) {
+        throw new Error('Najpierw odblokuj dni, które chcesz usunąć z planu.')
+      }
+      slots[index] = { ...previousSlots[index] }
+    }
+  }
+  let lastRecipeId: string | undefined
+  for (let index = 0; index < settings.duration; index++) {
+    if (slots[index]) {
+      lastRecipeId = slots[index].recipeId
+      continue
+    }
+    const coversDays = settings.batch && index + 1 < settings.duration && !slots[index + 1] ? 2 : 1
+    const recipe = pickRecipe(pool, lastRecipeId, random)!
+    const servings = settings.people * coversDays
+    slots[index] = {
+      recipeId: recipe.id,
+      servings,
+      coversDays,
+      isLeftoverDay: false,
+      isLocked: false,
+    }
+    if (coversDays === 2) {
+      slots[index + 1] = {
+        recipeId: recipe.id,
+        servings: settings.people,
+        coversDays: 1,
+        isLeftoverDay: true,
+        isLocked: false,
+      }
+      index++
+    }
+    lastRecipeId = recipe.id
+  }
+  return slots
 }
 
 export function generatePlan(
@@ -60,72 +126,73 @@ export function generatePlan(
   ) {
     throw new Error('Wybierz od 3 do 7 dni i od 1 do 8 porcji dziennie.')
   }
-  if (!pool.length)
-    throw new Error('Brak przepisów pasujących do filtrów. Zmień filtry i spróbuj ponownie.')
-  const plan: MealPlanDay[] = []
-  for (let index = 0; index < previous.length; index++) {
-    if (isBatchLocked(previous, index)) {
-      if (index >= settings.duration)
-        throw new Error('Najpierw odblokuj dni, które chcesz usunąć z planu.')
-      plan[index] = { ...previous[index] }
-    }
+  const lunchPool = pool.filter(r => r.mealType === 'lunch')
+  const dinnerPool = pool.filter(r => r.mealType === 'dinner')
+  if (!lunchPool.length) {
+    throw new Error('Brak przepisów na obiad pasujących do wyboru.')
   }
-  let lastRecipeId: string | undefined
-  for (let index = 0; index < settings.duration; index++) {
-    if (plan[index]) {
-      lastRecipeId = plan[index].recipeId
-      continue
-    }
-    const coversDays = settings.batch && index + 1 < settings.duration && !plan[index + 1] ? 2 : 1
-    const recipe = pickRecipe(pool, lastRecipeId, random)!
-    const servings = settings.people * coversDays
-    plan[index] = {
-      dayIndex: index,
-      dayLabel: `Dzień ${index + 1}`,
-      recipeId: recipe.id,
-      servings,
-      coversDays,
-      isLeftoverDay: false,
-      isLocked: false,
-    }
-    if (coversDays === 2) {
-      plan[index + 1] = {
-        dayIndex: index + 1,
-        dayLabel: `Dzień ${index + 2}`,
-        recipeId: recipe.id,
-        servings: settings.people,
-        coversDays: 1,
-        isLeftoverDay: true,
-        isLocked: false,
-      }
-      index++
-    }
-    lastRecipeId = recipe.id
+  if (!dinnerPool.length) {
+    throw new Error('Brak przepisów na kolację pasujących do wyboru.')
   }
-  return plan
+
+  const previousLunches = previous.map(d => d.lunch)
+  const previousDinners = previous.map(d => d.dinner)
+
+  const lunches = generateSlotPlan(lunchPool, settings, previousLunches, random)
+  const dinners = generateSlotPlan(dinnerPool, settings, previousDinners, random)
+
+  return Array.from({ length: settings.duration }, (_, index) => ({
+    dayIndex: index,
+    dayLabel: `Dzień ${index + 1}`,
+    lunch: lunches[index],
+    dinner: dinners[index],
+  }))
 }
 
-export function replacePlanRecipe(
+export function replacePlanMeal(
   plan: MealPlanDay[],
   index: number,
+  mealType: MealType,
   recipeId: string,
 ): MealPlanDay[] {
   if (!plan[index]) throw new Error('Nie znaleziono dnia w planie.')
-  if (isBatchLocked(plan, index)) throw new Error('Najpierw odblokuj ten posiłek.')
-  const start = getBatchStart(plan, index)
-  return plan.map((day, dayIndex) =>
-    dayIndex >= start && dayIndex < start + plan[start].coversDays ? { ...day, recipeId } : day,
-  )
+  if (isBatchLocked(plan, index, mealType)) throw new Error('Najpierw odblokuj ten posiłek.')
+  const start = getBatchStart(plan, index, mealType)
+  const covers = plan[start][mealType].coversDays
+  return plan.map((day, dayIndex) => {
+    if (dayIndex >= start && dayIndex < start + covers) {
+      return {
+        ...day,
+        [mealType]: {
+          ...day[mealType],
+          recipeId,
+        },
+      }
+    }
+    return day
+  })
 }
 
-export function togglePlanLock(plan: MealPlanDay[], index: number): MealPlanDay[] {
-  const start = getBatchStart(plan, index)
-  const locked = !isBatchLocked(plan, index)
-  return plan.map((day, dayIndex) =>
-    dayIndex >= start && dayIndex < start + plan[start].coversDays
-      ? { ...day, isLocked: locked }
-      : day,
-  )
+export function togglePlanLock(
+  plan: MealPlanDay[],
+  index: number,
+  mealType: MealType,
+): MealPlanDay[] {
+  const start = getBatchStart(plan, index, mealType)
+  const covers = plan[start][mealType].coversDays
+  const locked = !isBatchLocked(plan, index, mealType)
+  return plan.map((day, dayIndex) => {
+    if (dayIndex >= start && dayIndex < start + covers) {
+      return {
+        ...day,
+        [mealType]: {
+          ...day[mealType],
+          isLocked: locked,
+        },
+      }
+    }
+    return day
+  })
 }
 
 export const shoppingSignature = (item: ShoppingItem) => `${item.amount}:${item.unit}`
@@ -133,30 +200,35 @@ export const shoppingSignature = (item: ShoppingItem) => `${item.amount}:${item.
 export function aggregateShoppingList(plan: MealPlanDay[], recipes: Recipe[]): ShoppingItem[] {
   const items = new Map<string, ShoppingItem>()
   for (const day of plan) {
-    if (day.isLeftoverDay) continue
-    const recipe = recipes.find(recipe => recipe.id === day.recipeId)
-    if (!recipe) throw new Error('W planie znajduje się nieznany przepis.')
-    if (
-      recipe.basePortions <= 0 ||
-      !Number.isFinite(recipe.basePortions) ||
-      day.servings <= 0 ||
-      !Number.isFinite(day.servings)
-    )
-      throw new Error('Liczba porcji musi być większa od zera.')
-    for (const ingredient of recipe.ingredients) {
-      const id = `${ingredient.id}:${ingredient.unit}`
-      const amount = (ingredient.amount * day.servings) / recipe.basePortions
-      const existing = items.get(id)
-      if (existing) existing.amount += amount
-      else
-        items.set(id, {
-          ...ingredient,
-          id,
-          ingredientId: ingredient.id,
-          amount,
-          isChecked: false,
-          isCustom: false,
-        })
+    for (const mealType of ['lunch', 'dinner'] as const) {
+      const slot = day[mealType]
+      if (!slot || slot.isLeftoverDay) continue
+      const recipe = recipes.find(recipe => recipe.id === slot.recipeId)
+      if (!recipe) throw new Error('W planie znajduje się nieznany przepis.')
+      if (
+        recipe.basePortions <= 0 ||
+        !Number.isFinite(recipe.basePortions) ||
+        slot.servings <= 0 ||
+        !Number.isFinite(slot.servings)
+      ) {
+        throw new Error('Liczba porcji musi być większa od zera.')
+      }
+      for (const ingredient of recipe.ingredients) {
+        const id = `${ingredient.id}:${ingredient.unit}`
+        const amount = (ingredient.amount * slot.servings) / recipe.basePortions
+        const existing = items.get(id)
+        if (existing) existing.amount += amount
+        else {
+          items.set(id, {
+            ...ingredient,
+            id,
+            ingredientId: ingredient.id,
+            amount,
+            isChecked: false,
+            isCustom: false,
+          })
+        }
+      }
     }
   }
   return [...items.values()].map(item => ({

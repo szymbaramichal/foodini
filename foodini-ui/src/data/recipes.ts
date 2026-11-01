@@ -71,7 +71,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 35,
     difficulty: 'easy',
     basePortions: 2,
-    tags: ['vegan', 'vegetarian', 'dairy-free'],
+    tags: ['low-gi', 'vegan', 'vegetarian', 'dairy-free'],
     imageUrl: '/images/curry.jpg',
     ingredients: [
       ingredient(
@@ -107,7 +107,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 40,
     difficulty: 'easy',
     basePortions: 2,
-    tags: ['high-protein'],
+    tags: ['low-gi', 'high-protein'],
     imageUrl: '/images/butter-chicken.jpg',
     ingredients: [
       chicken(),
@@ -138,7 +138,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 25,
     difficulty: 'easy',
     basePortions: 2,
-    tags: ['quick', 'dairy-free', 'high-protein'],
+    tags: ['low-gi', 'quick', 'dairy-free', 'high-protein'],
     imageUrl: '/images/konjac.jpg',
     ingredients: [
       ingredient('konjac-noodles', 'Makaron konjac', 400, 'g', 'grains_pantry'),
@@ -168,7 +168,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 40,
     difficulty: 'easy',
     basePortions: 2,
-    tags: ['high-protein'],
+    tags: ['low-gi', 'high-protein'],
     imageUrl: '/images/meatballs.jpg',
     ingredients: [
       ingredient('ground-turkey', 'Mięso mielone z indyka', 350, 'g', 'meat_fish_tofu'),
@@ -198,7 +198,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 120,
     difficulty: 'medium',
     basePortions: 2,
-    tags: ['dairy-free', 'high-protein', 'one-pot'],
+    tags: ['low-gi', 'dairy-free', 'high-protein', 'one-pot'],
     imageUrl: '/images/stew.jpg',
     ingredients: [
       ingredient('beef-stew', 'Wołowina gulaszowa', 400, 'g', 'meat_fish_tofu'),
@@ -229,7 +229,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 45,
     difficulty: 'easy',
     basePortions: 2,
-    tags: ['vegetarian', 'one-pot'],
+    tags: ['low-gi', 'vegetarian', 'one-pot'],
     imageUrl: '/images/bake.jpg',
     ingredients: [
       ingredient('zucchini', 'Cukinia', 1, 'pcs', 'produce'),
@@ -259,7 +259,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 80,
     difficulty: 'easy',
     basePortions: 2,
-    tags: ['dairy-free', 'high-protein', 'one-pot'],
+    tags: ['low-gi', 'dairy-free', 'high-protein', 'one-pot'],
     imageUrl: '/images/roast.jpg',
     ingredients: [
       ingredient('pork-loin', 'Schab wieprzowy', 400, 'g', 'meat_fish_tofu'),
@@ -289,7 +289,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 35,
     difficulty: 'easy',
     basePortions: 2,
-    tags: ['dairy-free', 'high-protein'],
+    tags: ['low-gi', 'dairy-free', 'high-protein'],
     imageUrl: '/images/salmon-buckwheat.jpg',
     ingredients: [
       salmon(),
@@ -318,7 +318,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 30,
     difficulty: 'easy',
     basePortions: 2,
-    tags: ['high-protein'],
+    tags: ['low-gi', 'high-protein'],
     imageUrl: '/images/salmon-pasta.jpg',
     ingredients: [
       pasta(),
@@ -354,7 +354,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 60,
     difficulty: 'easy',
     basePortions: 2,
-    tags: ['dairy-free', 'high-protein'],
+    tags: ['low-gi', 'dairy-free', 'high-protein'],
     imageUrl: '/images/bolognese.jpg',
     ingredients: [
       pasta(80),
@@ -385,7 +385,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 150,
     difficulty: 'medium',
     basePortions: 4,
-    tags: ['dairy-free', 'one-pot'],
+    tags: ['low-gi', 'dairy-free', 'one-pot'],
     imageUrl: '/images/bigos.jpg',
     imageCredit: {
       author: 'Aw58',
@@ -425,7 +425,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 25,
     difficulty: 'easy',
     basePortions: 2,
-    tags: ['quick', 'high-protein'],
+    tags: ['low-gi', 'quick', 'high-protein'],
     imageUrl: '/images/chicken-salad.jpg',
     ingredients: [
       chicken(),
@@ -457,7 +457,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 40,
     difficulty: 'easy',
     basePortions: 2,
-    tags: ['dairy-free', 'high-protein'],
+    tags: ['low-gi', 'dairy-free', 'high-protein'],
     imageUrl: '/images/skewers.jpg',
     ingredients: [
       chicken(),

@@ -1,3 +1,4 @@
+export type View = 'recipes' | 'planner' | 'shopping'
 export type MealType = 'lunch' | 'dinner'
 export type RecipeTag =
   'low-gi' | 'dairy-free' | 'quick' | 'vegetarian' | 'vegan' | 'high-protein' | 'one-pot'
@@ -35,14 +36,19 @@ export interface Recipe {
   imageCredit?: { author: string; sourceUrl: string; licenseName: string; licenseUrl: string }
 }
 
-export interface MealPlanDay {
-  dayIndex: number
-  dayLabel: string
+export interface MealSlot {
   recipeId: string
   servings: number
   coversDays: number
   isLeftoverDay: boolean
   isLocked: boolean
+}
+
+export interface MealPlanDay {
+  dayIndex: number
+  dayLabel: string
+  lunch: MealSlot
+  dinner: MealSlot
 }
 
 export interface ShoppingItem extends Omit<IngredientItem, 'id'> {
@@ -59,7 +65,7 @@ export interface PlanSettings {
 }
 
 export interface SavedState {
-  version: 1
+  version: 2
   settings: PlanSettings
   plan: MealPlanDay[]
   customItems: ShoppingItem[]

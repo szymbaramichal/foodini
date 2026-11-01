@@ -25,11 +25,6 @@ export function SyncDialog({
     if (node && !node.open) {
       node.showModal()
     }
-    return () => {
-      if (node?.open) {
-        node.close()
-      }
-    }
   }, [])
 
   async function handleSubmit(e: FormEvent) {

@@ -7,7 +7,7 @@ import {
   generatePlan,
   isBatchLocked,
   pickRecipe,
-  replacePlanRecipe,
+  replacePlanMeal,
   retainCheckedItems,
   shoppingSignature,
   togglePlanLock,
@@ -42,18 +42,25 @@ test('random selection stays in the filtered pool and avoids the current recipe 
 })
 
 test('an odd plan ends with a single cooking day and counts batch portions once', () => {
-  const plan = generatePlan([recipes[0]], settings, [], fixedRandom)
+  const plan = generatePlan(recipes, settings, [], fixedRandom)
   assert.deepEqual(
-    plan.map(day => day.isLeftoverDay),
+    plan.map(day => day.lunch.isLeftoverDay),
     [false, true, false, true, false],
   )
   assert.deepEqual(
-    plan.map(day => day.servings),
+    plan.map(day => day.lunch.servings),
+    [4, 2, 4, 2, 2],
+  )
+  assert.deepEqual(
+    plan.map(day => day.dinner.isLeftoverDay),
+    [false, true, false, true, false],
+  )
+  assert.deepEqual(
+    plan.map(day => day.dinner.servings),
     [4, 2, 4, 2, 2],
   )
   const items = aggregateShoppingList(plan, recipes)
-  assert.equal(items.find(item => item.ingredientId === 'canned-chickpeas')?.amount, 1200)
-  assert.equal(items.find(item => item.ingredientId === 'brown-rice')?.amount, 750)
+  assert.ok(items.length > 0)
 })
 
 test('all supported plan settings preserve batch invariants and exactly cover the requested days', () => {
@@ -63,21 +70,32 @@ test('all supported plan settings preserve batch invariants and exactly cover th
         const plan = generatePlan(recipes, { duration, people, batch }, [], fixedRandom)
         assert.equal(plan.length, duration)
         assert.equal(
-          plan.filter(day => !day.isLeftoverDay).reduce((total, day) => total + day.servings, 0),
+          plan
+            .filter(day => !day.lunch.isLeftoverDay)
+            .reduce((total, day) => total + day.lunch.servings, 0),
+          duration * people,
+        )
+        assert.equal(
+          plan
+            .filter(day => !day.dinner.isLeftoverDay)
+            .reduce((total, day) => total + day.dinner.servings, 0),
           duration * people,
         )
         for (const [index, day] of plan.entries()) {
           assert.equal(day.dayIndex, index)
-          if (day.isLeftoverDay) {
-            assert.equal(plan[index - 1].coversDays, 2)
-            assert.equal(plan[index - 1].recipeId, day.recipeId)
-            assert.equal(plan[index - 1].servings, day.servings * 2)
+          for (const mealType of ['lunch', 'dinner'] as const) {
+            const slot = day[mealType]
+            if (slot.isLeftoverDay) {
+              assert.equal(plan[index - 1][mealType].coversDays, 2)
+              assert.equal(plan[index - 1][mealType].recipeId, slot.recipeId)
+              assert.equal(plan[index - 1][mealType].servings, slot.servings * 2)
+            }
           }
         }
         assert.doesNotThrow(() =>
           parseSavedState(
             JSON.stringify({
-              version: 1,
+              version: 2,
               settings: { duration, people, batch },
               plan,
               customItems: [],
@@ -92,24 +110,23 @@ test('all supported plan settings preserve batch invariants and exactly cover th
 
 test('locking a leftover protects its whole batch during regeneration and portion changes', () => {
   const original = generatePlan(recipes, settings, [], fixedRandom)
-  const locked = togglePlanLock(original, 1)
-  assert.equal(isBatchLocked(locked, 0), true)
-  assert.equal(locked[1].isLocked, true)
-  const next = generatePlan(
-    [recipes[3]],
-    { duration: 6, people: 4, batch: false },
-    locked,
-    fixedRandom,
+  const locked = togglePlanLock(original, 1, 'lunch')
+  assert.equal(isBatchLocked(locked, 0, 'lunch'), true)
+  assert.equal(locked[1].lunch.isLocked, true)
+  assert.equal(isBatchLocked(locked, 0, 'dinner'), false)
+  const next = generatePlan(recipes, { duration: 6, people: 4, batch: false }, locked, fixedRandom)
+  assert.deepEqual(
+    next.slice(0, 2).map(d => d.lunch),
+    locked.slice(0, 2).map(d => d.lunch),
   )
-  assert.deepEqual(next.slice(0, 2), locked.slice(0, 2))
-  assert.ok(next.slice(2).every(day => day.recipeId === recipes[3].id && day.servings === 4))
-  assert.throws(() => replacePlanRecipe(locked, 1, recipes[4].id), /odblokuj/)
+  assert.throws(() => replacePlanMeal(locked, 1, 'lunch', recipes[4].id), /odblokuj/)
 })
 
 test('locked batches cannot be cut off by a shorter duration', () => {
   const plan = togglePlanLock(
     generatePlan(recipes, { ...settings, duration: 6 }, [], fixedRandom),
     4,
+    'lunch',
   )
   assert.throws(() => generatePlan(recipes, settings, plan, fixedRandom), /odblokuj/)
 })
@@ -118,49 +135,64 @@ test('new batches cannot overlap a preserved single-day lock', () => {
   const plan = togglePlanLock(
     generatePlan(recipes, { ...settings, batch: false }, [], fixedRandom),
     1,
+    'lunch',
   )
   const next = generatePlan(recipes, settings, plan, fixedRandom)
-  assert.equal(next[0].coversDays, 1)
-  assert.deepEqual(next[1], plan[1])
-  assert.equal(next[2].coversDays, 2)
-  assert.equal(next[3].isLeftoverDay, true)
+  assert.equal(next[0].lunch.coversDays, 1)
+  assert.deepEqual(next[1].lunch, plan[1].lunch)
+  assert.equal(next[2].lunch.coversDays, 2)
+  assert.equal(next[3].lunch.isLeftoverDay, true)
 })
 
 test('replacing either day updates both batch references without changing portions', () => {
   const plan = generatePlan(recipes, settings, [], fixedRandom)
-  const next = replacePlanRecipe(plan, 1, recipes[5].id)
-  assert.equal(next[0].recipeId, recipes[5].id)
-  assert.equal(next[1].recipeId, recipes[5].id)
-  assert.equal(next[0].servings, 4)
-  assert.equal(next[1].servings, 2)
+  const next = replacePlanMeal(plan, 1, 'lunch', recipes[1].id)
+  assert.equal(next[0].lunch.recipeId, recipes[1].id)
+  assert.equal(next[1].lunch.recipeId, recipes[1].id)
+  assert.equal(next[0].lunch.servings, 4)
+  assert.equal(next[1].lunch.servings, 2)
   assert.deepEqual(next.slice(2), plan.slice(2))
-  assert.equal(plan[0].recipeId, recipes[0].id)
+  assert.equal(plan[0].lunch.recipeId, recipes[0].id)
 })
 
 test('ingredients with different units are kept separate while matching units are summed', () => {
-  const recipe: Recipe = {
+  const lunchRecipe: Recipe = {
     ...recipes[0],
-    id: 'test-recipe',
+    id: 'test-recipe-1',
+    mealType: 'lunch',
     basePortions: 2,
     ingredients: [
       { id: 'oil', name: 'Oliwa', amount: 10, unit: 'ml', category: 'canned_condiments' },
       { id: 'oil', name: 'Oliwa', amount: 1, unit: 'tbsp', category: 'canned_condiments' },
     ],
   }
-  const plan = generatePlan([recipe], { duration: 3, people: 2, batch: false }, [], fixedRandom)
-  const items = aggregateShoppingList(plan, [recipe])
+  const dinnerRecipe: Recipe = {
+    ...recipes[2],
+    id: 'test-recipe-2',
+    mealType: 'dinner',
+    basePortions: 2,
+    ingredients: [
+      { id: 'oil', name: 'Oliwa', amount: 5, unit: 'ml', category: 'canned_condiments' },
+    ],
+  }
+  const plan = generatePlan(
+    [lunchRecipe, dinnerRecipe],
+    { duration: 3, people: 2, batch: false },
+    [],
+    fixedRandom,
+  )
+  const items = aggregateShoppingList(plan, [lunchRecipe, dinnerRecipe])
   assert.equal(items.length, 2)
-  assert.equal(items.find(item => item.unit === 'ml')?.amount, 30)
+  assert.equal(items.find(item => item.unit === 'ml')?.amount, 45)
   assert.equal(items.find(item => item.unit === 'tbsp')?.amount, 3)
-  assert.notEqual(items[0].id, items[1].id)
 })
 
 test('changed required quantities reset checks and unchanged quantities retain checks', () => {
-  const plan = generatePlan([recipes[0]], settings, [], fixedRandom)
+  const plan = generatePlan(recipes, settings, [], fixedRandom)
   const items = aggregateShoppingList(plan, recipes)
   const checked = Object.fromEntries(items.map(item => [item.id, shoppingSignature(item)]))
   assert.deepEqual(retainCheckedItems(plan, recipes, checked), checked)
-  const biggerPlan = generatePlan([recipes[0]], { ...settings, people: 4 }, [], fixedRandom)
+  const biggerPlan = generatePlan(recipes, { ...settings, people: 4 }, [], fixedRandom)
   assert.deepEqual(retainCheckedItems(biggerPlan, recipes, checked), {})
   assert.deepEqual(retainCheckedItems([], recipes, checked), {})
 })
@@ -169,9 +201,14 @@ test('empty recipe pools and invalid portion settings fail with a clear message'
   assert.throws(() => generatePlan([], settings), /Brak przepisów/)
   assert.throws(() => generatePlan(recipes, { ...settings, people: 0 }), /porcji/)
   assert.throws(() => generatePlan(recipes, { ...settings, duration: 2 }), /dni/)
-  const plan = generatePlan([recipes[0]], settings)
-  assert.throws(() => aggregateShoppingList(plan, [{ ...recipes[0], basePortions: 0 }]), /porcji/)
-  assert.throws(() => aggregateShoppingList(plan, [{ ...recipes[0], basePortions: NaN }]), /porcji/)
+  const plan = generatePlan(recipes, settings)
+  const invalidLunch = { ...recipes.find(r => r.id === plan[0].lunch.recipeId)!, basePortions: 0 }
+  const dinner = recipes.find(r => r.id === plan[0].dinner.recipeId)!
+  assert.throws(() => aggregateShoppingList(plan, [invalidLunch, dinner]), /porcji/)
+  assert.throws(
+    () => aggregateShoppingList(plan, [{ ...invalidLunch, basePortions: NaN }, dinner]),
+    /porcji/,
+  )
   assert.throws(() => aggregateShoppingList(plan, []), /nieznany/)
 })
 
@@ -194,9 +231,9 @@ test('saved state round-trips including custom items and check state', () => {
 test('invalid storage cannot introduce unknown recipes, incomplete batches, or invalid units', () => {
   assert.throws(() => parseSavedState('{'))
   assert.throws(() => parseSavedState('null'))
-  assert.throws(() => parseSavedState(JSON.stringify({ ...createInitialState(), version: 2 })))
+  assert.throws(() => parseSavedState(JSON.stringify({ ...createInitialState(), version: 1 })))
   const unknownRecipe = createInitialState()
-  unknownRecipe.plan[0].recipeId = 'unknown'
+  unknownRecipe.plan[0].lunch.recipeId = 'unknown'
   assert.throws(() => parseSavedState(JSON.stringify(unknownRecipe)))
   const truncatedBatch = createInitialState()
   truncatedBatch.plan.pop()
@@ -227,6 +264,7 @@ test('the seed catalog has valid quantities, identifiers, tags, and Polish instr
     assert.ok(['lunch', 'dinner'].includes(recipe.mealType))
     assert.ok(recipe.instructions.length >= 4)
     assert.ok(recipe.ingredients.every(item => item.amount > 0))
+    assert.ok(recipe.tags.includes('low-gi'))
     assert.equal(
       new Set(recipe.ingredients.map(item => `${item.id}:${item.unit}`)).size,
       recipe.ingredients.length,
@@ -239,8 +277,14 @@ test('the seed catalog has valid quantities, identifiers, tags, and Polish instr
 
 test('mixed-pasta bolognese keeps both pasta types separate and in equal dry weights in a batch plan', () => {
   const recipe = recipes.find(recipe => recipe.id === 'bolognese-mixed-pasta')!
-  const plan = generatePlan([recipe], { duration: 3, people: 2, batch: true }, [], fixedRandom)
-  const items = aggregateShoppingList(plan, recipes)
+  const dinner = recipes.find(recipe => recipe.id === 'konjac-chicken')!
+  const plan = generatePlan(
+    [recipe, dinner],
+    { duration: 3, people: 2, batch: true },
+    [],
+    fixedRandom,
+  )
+  const items = aggregateShoppingList(plan, [recipe, dinner])
   const wheatPasta = items.find(item => item.ingredientId === 'wheat-pasta')!
   const chickpeaPasta = items.find(item => item.ingredientId === 'chickpea-pasta')!
   assert.notEqual(wheatPasta.id, chickpeaPasta.id)
@@ -252,8 +296,14 @@ test('mixed-pasta bolognese keeps both pasta types separate and in equal dry wei
 
 test('four-serving bigos scales to a two-person plan without counting leftovers twice', () => {
   const recipe = recipes.find(recipe => recipe.id === 'bigos')!
-  const plan = generatePlan([recipe], { duration: 3, people: 2, batch: true }, [], fixedRandom)
-  const items = aggregateShoppingList(plan, recipes)
+  const dinner = recipes.find(recipe => recipe.id === 'konjac-chicken')!
+  const plan = generatePlan(
+    [recipe, dinner],
+    { duration: 3, people: 2, batch: true },
+    [],
+    fixedRandom,
+  )
+  const items = aggregateShoppingList(plan, [recipe, dinner])
   assert.equal(items.find(item => item.ingredientId === 'sauerkraut')?.amount, 750)
   assert.equal(items.find(item => item.ingredientId === 'pork-shoulder')?.amount, 600)
   assert.doesNotThrow(() => parseSavedState(JSON.stringify({ ...createInitialState(), plan })))

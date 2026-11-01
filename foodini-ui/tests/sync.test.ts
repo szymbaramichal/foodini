@@ -182,7 +182,7 @@ test('handleSyncPost enforces max households limit', async () => {
   for (let i = 0; i < 10; i++) {
     db.store.set(`household_${i}`, {
       state_json: JSON.stringify(state),
-      version: 1,
+      version: state.version,
       updated_at: Date.now(),
     })
   }
