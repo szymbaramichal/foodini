@@ -23,17 +23,18 @@ const isPositiveInteger = (value: unknown): value is number =>
   Number.isInteger(value) && Number(value) > 0
 
 export const legacyRecipeMap: Record<string, { lunch: string; dinner: string }> = {
-  'turkey-meatballs': { lunch: 'tomato-meatballs', dinner: 'homemade-smash-burgers' },
+  'turkey-meatballs': { lunch: 'tomato-meatballs', dinner: 'frankfurters-buns' },
   'vegetable-bake': { lunch: 'mushroom-pasta', dinner: 'vegetable-cream-soup' },
-  'roast-pork': { lunch: 'roast-chicken', dinner: 'homemade-smash-burgers' },
+  'roast-pork': { lunch: 'roast-chicken', dinner: 'frankfurters-buns' },
   'salmon-buckwheat': { lunch: 'salmon-broccoli', dinner: 'smoked-salmon-salad' },
-  bigos: { lunch: 'beef-stew', dinner: 'homemade-smash-burgers' },
+  bigos: { lunch: 'beef-stew', dinner: 'frankfurters-buns' },
   'chicken-garlic-salad': { lunch: 'chicken-salad', dinner: 'feta-salad' },
   'chicken-bacon-skewers': {
     lunch: 'chicken-skewers-garlic-sauce',
     dinner: 'halloumi-salad',
   },
   'konjac-chicken': { lunch: 'konjac-chicken', dinner: 'halloumi-salad' },
+  'homemade-smash-burgers': { lunch: 'beef-stew', dinner: 'frankfurters-buns' },
 }
 
 export function migrateLegacyRecipeId(recipeId: string, mealType: MealType): string {

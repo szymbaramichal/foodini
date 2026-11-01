@@ -34,7 +34,7 @@ test('selected tags use AND matching and meal types are respected', () => {
       'tuna-paste-sandwiches',
       'halloumi-salad',
       'smoked-salmon-salad',
-      'homemade-smash-burgers',
+      'frankfurters-buns',
     ],
   )
   assert.equal(filterRecipes(recipes, '', ['vegan', 'high-protein'], '').length, 0)
@@ -314,6 +314,7 @@ test('legacy and removed recipes in saved state are migrated cleanly to valid cu
     legacyState.plan[3].lunch.recipeId = 'salmon-buckwheat'
   }
   legacyState.plan[2].dinner.recipeId = 'chicken-garlic-salad'
+  legacyState.plan[3].dinner.recipeId = 'homemade-smash-burgers'
 
   const parsed = parseSavedState(JSON.stringify(legacyState))
   assert.equal(parsed.plan[0].lunch.recipeId, 'tomato-meatballs')
@@ -324,10 +325,11 @@ test('legacy and removed recipes in saved state are migrated cleanly to valid cu
   assert.equal(parsed.plan[1].dinner.recipeId, 'halloumi-salad')
   assert.equal(parsed.plan[2].lunch.recipeId, 'salmon-broccoli')
   assert.equal(parsed.plan[2].dinner.recipeId, 'feta-salad')
+  assert.equal(parsed.plan[3].dinner.recipeId, 'frankfurters-buns')
 })
 
 test('the seed catalog has valid quantities, identifiers, tags, and Polish instructions', () => {
-  assert.equal(recipes.length, 23)
+  assert.equal(recipes.length, 32)
   assert.equal(new Set(recipes.map(recipe => recipe.id)).size, recipes.length)
   for (const recipe of recipes) {
     assert.ok(recipe.basePortions > 0)
