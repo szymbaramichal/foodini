@@ -23,6 +23,10 @@ const isPositiveInteger = (value: unknown): value is number =>
   Number.isInteger(value) && Number(value) > 0
 
 export const legacyRecipeMap: Record<string, { lunch: string; dinner: string }> = {
+  'stuffed-chicken-breast-broccoli': {
+    lunch: 'stuffed-chicken-breast-mozzarella',
+    dinner: 'stuffed-chicken-breast-mozzarella',
+  },
   'turkey-meatballs': { lunch: 'tomato-meatballs', dinner: 'frankfurters-buns' },
   'vegetable-bake': { lunch: 'mushroom-pasta', dinner: 'vegetable-cream-soup' },
   'roast-pork': { lunch: 'roast-chicken', dinner: 'frankfurters-buns' },

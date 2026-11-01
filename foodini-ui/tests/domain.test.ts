@@ -315,6 +315,7 @@ test('legacy and removed recipes in saved state are migrated cleanly to valid cu
   }
   legacyState.plan[2].dinner.recipeId = 'chicken-garlic-salad'
   legacyState.plan[3].dinner.recipeId = 'homemade-smash-burgers'
+  legacyState.plan[4].lunch.recipeId = 'stuffed-chicken-breast-broccoli'
 
   const parsed = parseSavedState(JSON.stringify(legacyState))
   assert.equal(parsed.plan[0].lunch.recipeId, 'tomato-meatballs')
@@ -326,6 +327,7 @@ test('legacy and removed recipes in saved state are migrated cleanly to valid cu
   assert.equal(parsed.plan[2].lunch.recipeId, 'salmon-broccoli')
   assert.equal(parsed.plan[2].dinner.recipeId, 'feta-salad')
   assert.equal(parsed.plan[3].dinner.recipeId, 'frankfurters-buns')
+  assert.equal(parsed.plan[4].lunch.recipeId, 'stuffed-chicken-breast-mozzarella')
 })
 
 test('the seed catalog has valid quantities, identifiers, tags, and Polish instructions', () => {

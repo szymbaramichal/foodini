@@ -642,10 +642,10 @@ export const recipes: Recipe[] = [
     ],
   },
   {
-    id: 'stuffed-chicken-breast-broccoli',
-    name: 'Pierś z kurczaka faszerowana brokułami i mozzarellą',
+    id: 'stuffed-chicken-breast-mozzarella',
+    name: 'Pierś z kurczaka faszerowana suszonymi pomidorami i mozzarellą',
     description:
-      'Soczyste filety z kurczaka nadziewane farszem z brokułów, ciągnącej się mozzarelli i suszonych pomidorów, zapiekane w piecu.',
+      'Soczyste filety z kurczaka nadziewane suszonymi pomidorami i ciągnącą się mozzarellą, zapiekane w piecu.',
     mealType: 'lunch',
     prepTimeMinutes: 40,
     difficulty: 'easy',
@@ -658,11 +658,10 @@ export const recipes: Recipe[] = [
       ingredient(
         'sun-dried-tomatoes',
         'Pomidory suszone (po odsączeniu)',
-        50,
+        60,
         'g',
         'canned_condiments',
       ),
-      ingredient('frozen-broccoli', 'Brokuły (mrożone lub świeże)', 250, 'g', 'produce'),
       garlic(2),
       oil(1),
       ingredient('sweet-paprika', 'Papryka słodka mielona', 1, 'tsp', 'canned_condiments'),
@@ -670,8 +669,8 @@ export const recipes: Recipe[] = [
       blackPepper(),
     ],
     instructions: [
-      'Rozgrzej piekarnik do 190°C. Brokuły ugotuj w osolonym wrzątku przez 4–5 minut, dokładnie odcedź i posiekaj. Suszone pomidory pokrój w paski, a mozzarellę zetrzyj lub posiekaj.',
-      'W misce wymieszaj posiekane brokuły, mozzarellę, suszone pomidory oraz przeciśnięty przez praskę czosnek.',
+      'Rozgrzej piekarnik do 190°C. Suszone pomidory odsącz z zalewy i pokrój w paseczki, a mozzarellę zetrzyj lub posiekaj.',
+      'W misce wymieszaj mozzarellę, suszone pomidory oraz przeciśnięty przez praskę czosnek.',
       'W każdej piersi z kurczaka wytnij głęboką kieszeń. Mięso natrzyj z zewnątrz i w środku oliwą, słodką papryką, solą oraz pieprzem.',
       'Wypełnij kieszenie farszem i zepnij wykałaczkami. Ułóż w naczyniu żaroodpornym i piecz przez 25–30 minut, aż mięso będzie soczyste i w pełni upieczone.',
     ],
