@@ -1,0 +1,323 @@
+{
+  "mappings": {
+    "canned-chickpeas": {
+      "name": "Ciecierzyca konserwowa",
+      "preferredQuery": "ciecierzyca konserwowa bonduelle",
+      "packageUnit": "can",
+      "packageAmount": 400
+    },
+    "chicken-breast": {
+      "name": "Pierś z kurczaka",
+      "preferredQuery": "filet z piersi kurczaka",
+      "packageUnit": "g",
+      "packageAmount": 500,
+      "productId": "132948"
+    },
+    "brown-rice": {
+      "name": "Ryż brązowy (suchy)",
+      "preferredQuery": "ryż brązowy sonko",
+      "packageUnit": "g",
+      "packageAmount": 400
+    },
+    "olive-oil": {
+      "name": "Oliwa z oliwek",
+      "preferredQuery": "oliwa z oliwek extra virgin monini",
+      "packageUnit": "ml",
+      "packageAmount": 500
+    },
+    "onion": {
+      "name": "Cebula",
+      "preferredQuery": "cebula żółta",
+      "packageUnit": "pcs"
+    },
+    "garlic": {
+      "name": "Czosnek",
+      "preferredQuery": "czosnek 1 główka",
+      "packageUnit": "pcs",
+      "packageAmount": 10
+    },
+    "zucchini": {
+      "name": "Cukinia",
+      "preferredQuery": "cukinia zielona",
+      "packageUnit": "pcs",
+      "packageAmount": 2,
+      "productId": "4116"
+    },
+    "red-onion": {
+      "name": "Cebula czerwona",
+      "preferredQuery": "cebula czerwona",
+      "packageUnit": "pcs",
+      "packageAmount": 5,
+      "productId": "4087"
+    },
+    "red-pepper": {
+      "name": "Papryka czerwona",
+      "preferredQuery": "papryka czerwona",
+      "packageUnit": "pcs",
+      "packageAmount": 3,
+      "productId": "12076"
+    },
+    "button-mushrooms": {
+      "name": "Pieczarki",
+      "preferredQuery": "pieczarki białe opakowanie",
+      "packageUnit": "g",
+      "packageAmount": 500
+    },
+    "chives": {
+      "name": "Szczypiorek",
+      "preferredQuery": "szczypiorek",
+      "packageUnit": "pack",
+      "packageAmount": 1
+    },
+    "eggs": {
+      "name": "Jajka",
+      "preferredQuery": "jaja wolny wybieg m",
+      "packageUnit": "pcs",
+      "packageAmount": 10
+    },
+    "bacon": {
+      "name": "Boczek",
+      "preferredQuery": "Boczek",
+      "productId": "133720"
+    },
+    "natural-yogurt": {
+      "name": "Jogurt naturalny",
+      "preferredQuery": "Jogurt naturalny",
+      "productId": "9322"
+    },
+    "canned-tuna": {
+      "name": "Tuńczyk w sosie własnym",
+      "preferredQuery": "Tuńczyk w sosie własnym",
+      "productId": "8205"
+    },
+    "egg": {
+      "name": "Jajko",
+      "preferredQuery": "Jajko",
+      "productId": "100769"
+    },
+    "sliced-ham": {
+      "name": "Szynka z piersi kurczaka",
+      "preferredQuery": "Szynka z piersi kurczaka",
+      "productId": "107535"
+    },
+    "butter": {
+      "name": "Masło",
+      "preferredQuery": "Masło",
+      "productId": "13500"
+    },
+    "cucumber": {
+      "name": "Ogórek zielony",
+      "preferredQuery": "Ogórek zielony",
+      "productId": "95329"
+    },
+    "tomato": {
+      "name": "Pomidor",
+      "preferredQuery": "Pomidor",
+      "productId": "99999"
+    },
+    "lettuce": {
+      "name": "Sałata",
+      "preferredQuery": "Sałata",
+      "productId": "3495"
+    },
+    "fresh-spinach": {
+      "name": "Szpinak świeży (baby)",
+      "preferredQuery": "FIT&EASY Szpinak myty",
+      "productId": "41809"
+    },
+    "parmesan": {
+      "name": "Ser parmezan (lub Grana Padano)",
+      "preferredQuery": "Ser parmezan",
+      "productId": "100007"
+    },
+    "lemon-juice": {
+      "name": "Sok z cytryny",
+      "preferredQuery": "Sok z cytryny",
+      "productId": "117063"
+    },
+    "ricotta": {
+      "name": "Ser ricotta",
+      "preferredQuery": "Ser ricotta",
+      "productId": "95089"
+    },
+    "halloumi": {
+      "name": "Ser halloumi",
+      "preferredQuery": "Ser halloumi",
+      "productId": "83439"
+    },
+    "mixed-lettuce": {
+      "name": "Miks sałat",
+      "preferredQuery": "Miks sałat",
+      "productId": "110879"
+    },
+    "cherry-tomatoes": {
+      "name": "Pomidorki koktajlowe",
+      "preferredQuery": "Pomidorki koktajlowe",
+      "productId": "105639"
+    },
+    "lemon": {
+      "name": "Cytryna",
+      "preferredQuery": "Cytryna",
+      "productId": "4086"
+    },
+    "pork-shoulder-meat": {
+      "name": "Mięso mielone z łopatki",
+      "preferredQuery": "Mięso mielone z łopatki",
+      "productId": "103977"
+    },
+    "almond-drink": {
+      "name": "Napój migdałowy (bez cukru)",
+      "preferredQuery": "Napój migdałowy",
+      "productId": "136448"
+    },
+    "coconut-yogurt": {
+      "name": "Jogurt kokosowy naturalny",
+      "preferredQuery": "Jogurt kokosowy naturalny",
+      "productId": "150373"
+    },
+    "frozen-berries": {
+      "name": "Mrożone owoce (np. truskawki, maliny, jagody)",
+      "preferredQuery": "Mrożone owoce",
+      "productId": "5297"
+    },
+    "banana": {
+      "name": "Banan",
+      "preferredQuery": "Banan",
+      "productId": "4094"
+    },
+    "graham-roll": {
+      "name": "Bułka o niskim IG (np. graham)",
+      "preferredQuery": "bułka graham",
+      "packageUnit": "pcs",
+      "packageAmount": 1,
+      "productId": "134662"
+    },
+    "wheat-roll": {
+      "name": "Bułka pszenna (zwykła)",
+      "preferredQuery": "bułka kajzerka",
+      "packageUnit": "pcs",
+      "packageAmount": 1,
+      "productId": "134665"
+    },
+    "cashews": {
+      "name": "Orzechy nerkowca",
+      "preferredQuery": "orzechy nerkowca",
+      "packageUnit": "g",
+      "packageAmount": 100,
+      "productId": "47433"
+    },
+    "whole-grain-pasta": {
+      "name": "Makaron pełnoziarnisty (suchy)",
+      "preferredQuery": "makaron świdry pełnoziarniste",
+      "packageUnit": "g",
+      "packageAmount": 500,
+      "productId": "7123"
+    },
+    "chickpea-pasta": {
+      "name": "Makaron z ciecierzycy (suchy)",
+      "preferredQuery": "makaron warzywny z ciecierzycy",
+      "packageUnit": "g",
+      "packageAmount": 250,
+      "productId": "146470"
+    },
+    "wheat-pasta": {
+      "name": "Makaron pszenny (suchy)",
+      "preferredQuery": "makaron spaghetti",
+      "packageUnit": "g",
+      "packageAmount": 500,
+      "productId": "139567"
+    },
+    "rolled-oats": {
+      "name": "Płatki owsiane górskie",
+      "preferredQuery": "płatki owsiane górskie",
+      "packageUnit": "g",
+      "packageAmount": 500,
+      "productId": "134932"
+    },
+    "black-pepper": {
+      "name": "Pieprz czarny mielony",
+      "preferredQuery": "pieprz czarny mielony",
+      "packageUnit": "pack",
+      "packageAmount": 1,
+      "productId": "80189"
+    },
+    "sweet-paprika": {
+      "name": "Papryka słodka mielona",
+      "preferredQuery": "papryka słodka mielona",
+      "packageUnit": "pack",
+      "packageAmount": 1,
+      "productId": "80187"
+    },
+    "salt": {
+      "name": "Sól",
+      "preferredQuery": "sól warzona jodowana",
+      "packageUnit": "pack",
+      "packageAmount": 1,
+      "productId": "105461"
+    },
+    "mayonnaise": {
+      "name": "Majonez",
+      "preferredQuery": "majonez dekoracyjny",
+      "packageUnit": "pack",
+      "packageAmount": 1,
+      "productId": "2503"
+    },
+    "canned-chopped-tomatoes": {
+      "name": "Pomidory krojone",
+      "preferredQuery": "pomidory drobno krojone",
+      "packageUnit": "can",
+      "packageAmount": 400,
+      "productId": "894"
+    },
+    "dried-oregano": {
+      "name": "Oregano suszone",
+      "preferredQuery": "oregano",
+      "packageUnit": "pack",
+      "packageAmount": 1,
+      "productId": "138520"
+    },
+    "honey": {
+      "name": "Miód",
+      "preferredQuery": "miód lipowy",
+      "packageUnit": "pack",
+      "packageAmount": 1,
+      "productId": "10344"
+    },
+    "tomato-passata": {
+      "name": "Passata pomidorowa",
+      "preferredQuery": "passata klasyczna",
+      "packageUnit": "ml",
+      "packageAmount": 500,
+      "productId": "152169"
+    },
+    "peanut-butter": {
+      "name": "Masło orzechowe",
+      "preferredQuery": "pasta z orzeszków ziemnych",
+      "packageUnit": "g",
+      "packageAmount": 500,
+      "productId": "106033"
+    },
+    "ground-cinnamon": {
+      "name": "Cynamon mielony",
+      "preferredQuery": "cynamon mielony",
+      "packageUnit": "pack",
+      "packageAmount": 1,
+      "productId": "9855"
+    },
+    "wholegrain-pasta": {
+      "name": "Makaron pełnoziarnisty (suchy)",
+      "preferredQuery": "Makaron pełnoziarnisty",
+      "productId": "7123"
+    },
+    "oregano": {
+      "name": "Oregano suszone",
+      "preferredQuery": "Oregano suszone",
+      "productId": "138520"
+    },
+    "cinnamon": {
+      "name": "Cynamon mielony",
+      "preferredQuery": "Cynamon mielony",
+      "productId": "9855"
+    }
+  }
+}

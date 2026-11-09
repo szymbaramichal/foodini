@@ -170,15 +170,17 @@ npm run dev
 
 Other available commands, also run from `foodini-ui/`:
 
-| Command                | Purpose                                                                                          |
-| ---------------------- | ------------------------------------------------------------------------------------------------ |
-| `npm run build`        | Check TypeScript and create the production build                                                 |
-| `npm run lint`         | Run ESLint                                                                                       |
-| `npm run format`       | Format repository source, configuration, and documentation with Prettier                         |
-| `npm run format:check` | Check formatting without changing files                                                          |
-| `npm run preview`      | Preview an existing production build locally                                                     |
-| `npm test`             | Run domain and saved-data validation tests using Node's built-in test runner                     |
-| `npm run check`        | Run tests, lint, and the production build; shared by local development and Cloudflare deployment |
+| Command                 | Purpose                                                                                               |
+| ----------------------- | ----------------------------------------------------------------------------------------------------- |
+| `npm run build`         | Check TypeScript and create the production build                                                      |
+| `npm run lint`          | Run ESLint                                                                                            |
+| `npm run format`        | Format repository source, configuration, and documentation with Prettier                              |
+| `npm run format:check`  | Check formatting without changing files                                                               |
+| `npm run preview`       | Preview an existing production build locally                                                          |
+| `npm run shopping-list` | Fetch active shopping list from Cloudflare D1 sync endpoint and display in terminal or export as JSON |
+| `npm run frisco`        | Manage Frisco.pl browser session, check login/cart status, and search products via Playwright         |
+| `npm test`              | Run domain and saved-data validation tests using Node's built-in test runner                          |
+| `npm run check`         | Run tests, lint, and the production build; shared by local development and Cloudflare deployment      |
 
 Tests in `foodini-ui/tests/domain.test.ts` cover search and tag matching, portion scaling, aggregation across units, all supported planner settings, batch locks, leftover consistency, quantity changes, and saved-data validation.
 
@@ -224,21 +226,26 @@ After the first deployment, check recipe images, open a recipe, generate a plan,
 
 ## POC source map and assets
 
-| Path                               | Responsibility                                                                                          |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `foodini-ui/src/App.tsx`           | Connected recipe, planner, and shopping views                                                           |
-| `foodini-ui/src/components/`       | Header, recipe details, view components (recipes, planner, shopping), sync dialog, and shared SVG icons |
-| `foodini-ui/src/useSync.ts`        | React hook orchestrating Cloudflare D1 household sync and status                                        |
-| `foodini-ui/src/data/recipes.ts`   | Thirty-three Polish recipes (19 lunches and 14 dinners), tag labels, units, and shopping categories     |
-| `foodini-ui/src/types.ts`          | Domain types                                                                                            |
-| `foodini-ui/src/domain.ts`         | Filtering, plan generation, batch operations, scaling, and aggregation                                  |
-| `foodini-ui/src/storage.ts`        | Initial sample state and validation of persisted data                                                   |
-| `foodini-ui/src/sync.ts`           | Client-side sync manager, remote fetch/push, and key persistence                                        |
-| `foodini-ui/functions/api/sync.ts` | Cloudflare Pages Function endpoint: auth check, payload validation, and D1 SQLite sync                  |
-| `foodini-ui/schema.sql`            | Cloudflare D1 SQLite database schema for household state persistence                                    |
-| `foodini-ui/tests/sync.test.ts`    | Unit tests for sync authentication, payload limits, and D1 upsert logic                                 |
-| `foodini-ui/public/images/`        | Local illustrative food photos                                                                          |
-| `foodini-ui/public/fonts/`         | Bundled DM Sans font and its OFL license; used throughout the interface                                 |
+| Path                                            | Responsibility                                                                                          |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `foodini-ui/src/App.tsx`                        | Connected recipe, planner, and shopping views                                                           |
+| `foodini-ui/src/components/`                    | Header, recipe details, view components (recipes, planner, shopping), sync dialog, and shared SVG icons |
+| `foodini-ui/src/useSync.ts`                     | React hook orchestrating Cloudflare D1 household sync and status                                        |
+| `foodini-ui/src/data/recipes.ts`                | Thirty-three Polish recipes (19 lunches and 14 dinners), tag labels, units, and shopping categories     |
+| `foodini-ui/src/types.ts`                       | Domain types                                                                                            |
+| `foodini-ui/src/domain.ts`                      | Filtering, plan generation, batch operations, scaling, and aggregation                                  |
+| `foodini-ui/src/storage.ts`                     | Initial sample state and validation of persisted data                                                   |
+| `foodini-ui/src/sync.ts`                        | Client-side sync manager, remote fetch/push, and key persistence                                        |
+| `foodini-ui/functions/api/sync.ts`              | Cloudflare Pages Function endpoint: auth check, payload validation, and D1 SQLite sync                  |
+| `foodini-ui/schema.sql`                         | Cloudflare D1 SQLite database schema for household state persistence                                    |
+| `foodini-ui/tests/sync.test.ts`                 | Unit tests for sync authentication, payload limits, and D1 upsert logic                                 |
+| `foodini-ui/scripts/get-shopping-list.ts`       | CLI script and module to fetch and format active shopping list from Cloudflare D1 sync endpoint         |
+| `foodini-ui/scripts/frisco-browser.ts`          | Playwright automation helper for Frisco.pl session management, product search, and cart actions         |
+| `foodini-ui/tests/shopping-list-script.test.ts` | Unit tests for CLI shopping list fetching, URL normalization, and item filtering                        |
+| `foodini-ui/tests/frisco-browser.test.ts`       | Unit tests for Frisco product quantity scaling, package calculations, and mapping lookups               |
+| `.agents/skills/frisco-shopper/`                | Antigravity workspace skill enabling autonomous Frisco.pl grocery cart preparation                      |
+| `foodini-ui/public/images/`                     | Local illustrative food photos                                                                          |
+| `foodini-ui/public/fonts/`                      | Bundled DM Sans font and its OFL license; used throughout the interface                                 |
 
 Illustrative photos are from Unsplash: [chickpea curry](https://unsplash.com/photos/RELOvb0rrCE), [butter chicken](https://images.unsplash.com/photo-1603894584373-5ac82b2ae398), [noodles](https://unsplash.com/photos/EDoy1yjPLV0), [meatballs](https://images.unsplash.com/photo-1529042410759-befb1204b468), [stew](https://unsplash.com/photos/gbtQfadV5qY), [vegetable casserole](https://unsplash.com/photos/uHggZfKi8Ks), and [roasted meat](https://images.unsplash.com/photo-1432139555190-58524dae6a55). Font license: [DM Sans](foodini-ui/public/fonts/DM-Sans-OFL.txt).
 
