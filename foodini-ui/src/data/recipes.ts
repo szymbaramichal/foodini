@@ -74,6 +74,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 30,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 650,
     tags: ['low-gi', 'vegan', 'vegetarian', 'dairy-free'],
     imageUrl: '/images/curry.jpg',
     ingredients: [
@@ -110,6 +111,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 35,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 640,
     tags: ['low-gi', 'high-protein'],
     imageUrl: '/images/butter-chicken.jpg',
     ingredients: [
@@ -140,6 +142,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 40,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 810,
     tags: ['low-gi', 'high-protein'],
     imageUrl: '/images/meatballs.jpg',
     ingredients: [
@@ -179,6 +182,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 40,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 710,
     tags: ['low-gi', 'high-protein', 'dairy-free'],
     imageUrl: '/images/meatballs.jpg',
     ingredients: [
@@ -217,6 +221,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 110,
     difficulty: 'medium',
     basePortions: 4,
+    caloriesKcal: 720,
     tags: ['low-gi', 'dairy-free', 'high-protein', 'one-pot'],
     imageUrl: '/images/stew.jpg',
     ingredients: [
@@ -251,6 +256,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 60,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 740,
     tags: ['low-gi', 'dairy-free', 'high-protein', 'one-pot'],
     imageUrl: '/images/roast.jpg',
     ingredients: [
@@ -282,6 +288,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 30,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 640,
     tags: ['low-gi', 'dairy-free', 'high-protein'],
     imageUrl: '/images/salmon-buckwheat.jpg',
     ingredients: [
@@ -311,6 +318,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 25,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 940,
     tags: ['low-gi', 'quick', 'high-protein'],
     imageUrl: '/images/salmon-pasta.jpg',
     ingredients: [
@@ -349,6 +357,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 25,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 620,
     tags: ['low-gi', 'quick', 'vegetarian'],
     imageUrl: '/images/mushroom-pasta.jpg',
     imageCredit: {
@@ -386,6 +395,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 45,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 910,
     tags: ['low-gi', 'dairy-free', 'high-protein'],
     imageUrl: '/images/bolognese.jpg',
     ingredients: [
@@ -418,6 +428,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 35,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 560,
     tags: ['low-gi', 'high-protein'],
     imageUrl: '/images/skewers.jpg',
     ingredients: [
@@ -451,6 +462,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 20,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 400,
     tags: ['low-gi', 'quick', 'dairy-free', 'high-protein', 'one-pot'],
     imageUrl: '/images/konjac.jpg',
     ingredients: [
@@ -486,6 +498,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 20,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 310,
     tags: ['low-gi', 'quick', 'high-protein'],
     imageUrl: '/images/chicken-salad.jpg',
     ingredients: [
@@ -518,6 +531,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 20,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 340,
     tags: ['low-gi', 'quick', 'high-protein', 'dairy-free', 'one-pot'],
     imageUrl: '/images/chicken-stir-fry.jpg',
     imageCredit: {
@@ -552,6 +566,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 20,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 620,
     tags: ['low-gi', 'quick', 'vegetarian'],
     imageUrl: '/images/salmon-pasta.jpg',
     ingredients: [
@@ -581,6 +596,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 25,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 590,
     tags: ['low-gi', 'quick', 'high-protein', 'dairy-free'],
     imageUrl: '/images/curry.jpg',
     ingredients: [
@@ -615,6 +631,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 35,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 440,
     tags: ['low-gi', 'high-protein', 'dairy-free', 'one-pot'],
     imageUrl: '/images/kaszotto.jpg',
     imageCredit: {
@@ -650,6 +667,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 40,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 490,
     tags: ['low-gi', 'high-protein'],
     imageUrl: '/images/roast.jpg',
     ingredients: [
@@ -684,6 +702,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 40,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 530,
     tags: ['low-gi', 'high-protein'],
     imageUrl: '/images/stuffed-zucchini.jpg',
     imageCredit: {
@@ -731,6 +750,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 10,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 330,
     tags: ['low-gi', 'quick', 'high-protein'],
     imageUrl: '/images/ham-sandwiches.jpg',
     ingredients: [
@@ -760,6 +780,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 20,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 460,
     tags: ['low-gi', 'quick', 'vegetarian', 'high-protein'],
     imageUrl: '/images/keto-waffles.jpg',
     ingredients: [
@@ -788,6 +809,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 25,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 1000,
     tags: ['low-gi', 'quick', 'vegetarian'],
     imageUrl: '/images/racuchy.jpg',
     ingredients: [
@@ -825,6 +847,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 15,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 420,
     tags: ['low-gi', 'quick', 'high-protein'],
     imageUrl: '/images/tuna-sandwiches.jpg',
     ingredients: [
@@ -854,6 +877,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 10,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 360,
     tags: ['low-gi', 'quick', 'vegetarian', 'vegan', 'dairy-free'],
     imageUrl: '/images/avocado-sandwiches.jpg',
     ingredients: [
@@ -884,6 +908,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 15,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 370,
     tags: ['low-gi', 'quick', 'vegetarian'],
     imageUrl: '/images/feta-salad.jpg',
     ingredients: [
@@ -915,6 +940,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 15,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 460,
     tags: ['low-gi', 'quick', 'vegetarian', 'high-protein'],
     imageUrl: '/images/halloumi-salad.jpg',
     ingredients: [
@@ -945,6 +971,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 15,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 250,
     tags: ['low-gi', 'quick', 'dairy-free', 'high-protein'],
     imageUrl: '/images/salmon-salad.jpg',
     ingredients: [
@@ -975,6 +1002,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 30,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 320,
     tags: ['low-gi', 'vegetarian'],
     imageUrl: '/images/veggie-soup.jpg',
     ingredients: [
@@ -1005,6 +1033,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 10,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 310,
     tags: ['low-gi', 'quick', 'vegetarian', 'vegan', 'dairy-free'],
     imageUrl: '/images/fruit-bowl.jpg',
     ingredients: [
@@ -1033,6 +1062,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 10,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 530,
     tags: ['low-gi', 'quick', 'high-protein'],
     imageUrl: '/images/frankfurters.jpg',
     ingredients: [
@@ -1066,6 +1096,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 5,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 380,
     tags: ['low-gi', 'quick', 'vegetarian', 'vegan', 'dairy-free'],
     imageUrl: '/images/coconut-yogurt.jpg',
     ingredients: [
@@ -1093,6 +1124,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 5,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 310,
     tags: ['low-gi', 'quick', 'vegetarian', 'vegan', 'dairy-free'],
     imageUrl: '/images/smoothie.jpg',
     ingredients: [
@@ -1127,6 +1159,7 @@ export const recipes: Recipe[] = [
     prepTimeMinutes: 20,
     difficulty: 'easy',
     basePortions: 2,
+    caloriesKcal: 500,
     tags: ['low-gi', 'quick', 'vegetarian'],
     imageUrl: '/images/apple-pasta.jpg',
     ingredients: [

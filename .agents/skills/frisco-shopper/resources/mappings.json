@@ -318,6 +318,66 @@
       "name": "Cynamon mielony",
       "preferredQuery": "Cynamon mielony",
       "productId": "9855"
+    },
+    "mushrooms": {
+      "name": "Kurki lub pieczarki",
+      "preferredQuery": "Kurki lub pieczarki",
+      "productId": "3433"
+    },
+    "cream": {
+      "name": "Śmietanka 30%",
+      "preferredQuery": "Śmietanka 30%",
+      "productId": "124137"
+    },
+    "romaine-lettuce": {
+      "name": "Sałata rzymska",
+      "preferredQuery": "Sałata rzymska",
+      "productId": "110879"
+    },
+    "salmon-fillet": {
+      "name": "Filet z łososia",
+      "preferredQuery": "Filet z łososia",
+      "productId": "145518"
+    },
+    "broccoli": {
+      "name": "Brokuł",
+      "preferredQuery": "Brokuł",
+      "productId": "4042"
+    },
+    "millet-groats": {
+      "name": "Kasza jaglana (lub komosa ryżowa)",
+      "preferredQuery": "Kasza jaglana",
+      "productId": "80211"
+    },
+    "lemon-pepper": {
+      "name": "Pieprz cytrynowy",
+      "preferredQuery": "Pieprz cytrynowy",
+      "productId": "99283"
+    },
+    "kefir": {
+      "name": "Kefir",
+      "preferredQuery": "Kefir",
+      "productId": "142607"
+    },
+    "apple": {
+      "name": "Jabłko",
+      "preferredQuery": "Jabłko",
+      "productId": "16161"
+    },
+    "ground-meat": {
+      "name": "Mięso mielone (np. z indyka lub szynki)",
+      "preferredQuery": "Mięso mielone",
+      "productId": "103977"
+    },
+    "canned-tomatoes": {
+      "name": "Pomidory krojone w puszce",
+      "preferredQuery": "Pomidory krojone w puszce",
+      "productId": "894"
+    },
+    "mozzarella": {
+      "name": "Ser mozzarella",
+      "preferredQuery": "Ser mozzarella",
+      "productId": "144122"
     }
   }
 }

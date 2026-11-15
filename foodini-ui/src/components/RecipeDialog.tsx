@@ -44,6 +44,8 @@ export function RecipeDialog({
           recipe.name,
           recipe.description,
           '',
+          `KALORIE: ${portions * recipe.caloriesKcal} kcal (${recipe.caloriesKcal} kcal / porcja)`,
+          '',
           `SKŁADNIKI (${portions} ${portionLabel(portions)}):`,
           ...recipe.ingredients.map(item => {
             const scaled = (item.amount * portions) / recipe.basePortions
@@ -107,6 +109,12 @@ export function RecipeDialog({
           <span className="flex items-center gap-1.5 text-[13px] text-foodini-muted">
             <Icon name="recipes" size={17} />
             {difficultyLabels[recipe.difficulty] ?? 'Średni poziom'}
+          </span>
+          <span className="flex items-center gap-1.5 text-[13px] text-foodini-muted">
+            <Icon name="flame" size={17} />
+            {portions === 1
+              ? `${recipe.caloriesKcal} kcal / porcja`
+              : `${recipe.caloriesKcal * portions} kcal (${recipe.caloriesKcal} kcal / porcja)`}
           </span>
         </div>
         <p className="text-[13px] text-foodini-muted">

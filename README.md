@@ -18,7 +18,7 @@ The frontend in `foodini-ui/` is a working browser-only proof of concept with a 
   - **Dinners (`Kolacje`)**: ham and vegetable sandwiches, keto waffles with berries and whipped cream, kefir pancakes with apple and banana, tuna and egg paste sandwiches, avocado paste and cherry tomato sandwiches, feta salad with mustard vinaigrette, grilled halloumi salad with honey-lemon dressing, smoked salmon salad with dill, roasted vegetable cream soup with ricotta, fruit bowl with nuts and seeds, frankfurters with buns and sauces, coconut yogurt with fruit and granola, berry and oat smoothie with coconut yogurt, and pasta with apples and cinnamon.
 - Recipe search by name or ingredient (including searches without Polish accents), organized into two main tabs: dinners and lunches (`Kolacje` and `Obiady`). All recipes are low GI, so tag filter buttons are omitted from the main page.
 - Recipe details with ingredient quantities scaled to the selected portions.
-- A 3–7 day planner with two meal slots per day (lunch and dinner), 1–8 portions per meal, optional two-day batches for lunches (dinners are always made fresh for one day), meal replacement, and locks that preserve a whole batch.
+- A 3–7 day planner with two meal slots per day (lunch and dinner), 1–8 portions per meal, daily calories per person, optional two-day batches for lunches (dinners are always made fresh for one day), meal replacement, and locks that preserve a whole batch.
 - Shopping lists grouped by aisle, checkboxes, custom products with quantities and categories, clipboard copying, Web Share API export (to Google Keep, Apple Notes, or messaging), and text-file download.
 - Browser `localStorage` persistence with optional cross-device cloud synchronization backed by Cloudflare Pages Functions and Cloudflare D1 (SQLite), secured with a household sync key and protected against database flooding.
 - Responsive layouts with three simple tabs in a sticky header, sync status pill indicator, compact recipe rows, and a shopping checklist. The custom-product form expands under `Dodaj produkt`.
@@ -27,7 +27,7 @@ The first visit starts with a sample five-day plan for two people covering lunch
 
 When a plan change alters an ingredient's required quantity, that ingredient becomes unchecked; unchanged quantities keep their checkmarks, and custom items remain. Changes to planner settings take effect when the user chooses `Ułóż nowy plan`; locked batches retain their original recipes and portions. The portion selector in recipe details previews ingredient scaling; adding a recipe to the plan uses that plan slot's portions.
 
-The application exclusively supports dinners and lunches (no breakfasts). All catalog recipes carry the `low-gi` tag. Nutrition calculations and automatic unit conversion are not implemented.
+The application exclusively supports dinners and lunches (no breakfasts). All catalog recipes carry the `low-gi` tag and specify per-serving calories (`caloriesKcal`), with the planner displaying daily calories per person. Automatic unit conversion is not implemented.
 
 The existing stack is React, TypeScript, Vite, Tailwind CSS, and ESLint. Dependency versions and available scripts are defined in [foodini-ui/package.json](foodini-ui/package.json).
 
@@ -82,6 +82,7 @@ These are the intended domain contracts. Keep domain calculations separate from 
 | `prepTimeMinutes` | `number`           | Preparation time in minutes                                                             |
 | `difficulty`      | `Difficulty`       | Recipe difficulty                                                                       |
 | `basePortions`    | `number`           | Positive number of portions covered by the base ingredient quantities                   |
+| `caloriesKcal`    | `number`           | Energy in kilocalories (kcal) per serving                                               |
 | `tags`            | `RecipeTag[]`      | Dietary and lifestyle tags                                                              |
 | `ingredients`     | `IngredientItem[]` | Measured ingredients and shopping categories                                            |
 | `instructions`    | `string[]`         | Ordered cooking instructions in Polish                                                  |
@@ -183,6 +184,91 @@ Other available commands, also run from `foodini-ui/`:
 | `npm run check`         | Run tests, lint, and the production build; shared by local development and Cloudflare deployment      |
 
 Tests in `foodini-ui/tests/domain.test.ts` cover search and tag matching, portion scaling, aggregation across units, all supported planner settings, batch locks, leftover consistency, quantity changes, and saved-data validation.
+
+## Running the agent locally
+
+The repository includes an autonomous grocery shopping agent powered by Antigravity workspace skills ([.agents/skills/frisco-shopper/](.agents/skills/frisco-shopper/)) and Playwright browser automation ([foodini-ui/scripts/frisco-browser.ts](foodini-ui/scripts/frisco-browser.ts)). The agent fetches the active meal plan's unbought groceries from the Cloudflare D1 synchronization endpoint and prepares a complete cart on Frisco.pl.
+
+> [!IMPORTANT]
+> **Safety Boundary**: The agent's scope is strictly cart preparation. It never selects paid delivery slots, finalizes checkout, or enters payment details. The cart is left open for the user's review and approval.
+
+### 1. Environment configuration
+
+Create `.env` in `foodini-ui/` (or the repository root) based on [foodini-ui/.env.example](foodini-ui/.env.example):
+
+```sh
+cp foodini-ui/.env.example foodini-ui/.env
+```
+
+Configure the following variables:
+
+```env
+FOODINI_SYNC_URL=https://twoja-aplikacja.pages.dev
+FOODINI_SYNC_KEY=twoj-tajny-klucz-domowy
+
+FRISCO_EMAIL=twoj-email@example.com
+FRISCO_PASSWORD=twoje-haslo-do-frisco
+```
+
+- `FOODINI_SYNC_URL`: URL of your deployed Foodini application or local server.
+- `FOODINI_SYNC_KEY`: The household sync key set up in the app header sync settings.
+- `FRISCO_EMAIL` & `FRISCO_PASSWORD`: Login credentials for your Frisco.pl account.
+
+### 2. Install browser dependencies
+
+Install the Chromium browser binary required by Playwright:
+
+```sh
+cd foodini-ui
+npx playwright install chromium
+```
+
+### 3. Launching with the Antigravity AI Agent (`agy`)
+
+When using the Antigravity CLI or Antigravity IDE, launch the agent from the repository root:
+
+```sh
+agy
+```
+
+The agent automatically reads [AGENTS.md](AGENTS.md) and registers the `frisco-shopper` skill. You can interact in natural language:
+
+- _"Przygotuj koszyk Frisco"_ or _"Zrób zakupy z Foodini"_ — triggers autonomous cart preparation.
+- If any products have multiple matches or require replacements, the agent interactively asks for your choice before proceeding (human-in-the-loop).
+- Returns a summary of added products, total basket value, and any unavailable items.
+
+### 4. Running standalone automation scripts
+
+You can also run and inspect the agent scripts directly via npm commands in `foodini-ui/`:
+
+- **Check shopping list**: Verify synchronization and view unbought items:
+  ```sh
+  cd foodini-ui
+  npm run shopping-list
+  ```
+- **Interactive login / session setup**: Opens a visible browser window to log in or resolve initial verification:
+  ```sh
+  cd foodini-ui
+  npm run frisco login
+  ```
+- **Check session and cart status**: Displays login state, postal code, item count, and basket value:
+  ```sh
+  cd foodini-ui
+  npm run frisco status
+  ```
+- **Autonomous cart preparation**: Fetches the active list and fills the Frisco cart (headless by default):
+  ```sh
+  cd foodini-ui
+  npm run frisco prepare
+  ```
+  Pass `--headful` to see the browser actions live in a window:
+  ```sh
+  npm run frisco prepare -- --headful
+  ```
+- **Search products manually**:
+  ```sh
+  npm run frisco -- search "oliwa z oliwek"
+  ```
 
 ## Publishing to Cloudflare Pages from GitHub
 

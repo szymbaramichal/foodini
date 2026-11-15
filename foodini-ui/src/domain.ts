@@ -273,6 +273,12 @@ export function retainCheckedItems(
   )
 }
 
+export function calculateDayCalories(day: MealPlanDay, recipes: Recipe[]): number {
+  const lunch = recipes.find(recipe => recipe.id === day.lunch?.recipeId)
+  const dinner = recipes.find(recipe => recipe.id === day.dinner?.recipeId)
+  return (lunch?.caloriesKcal ?? 0) + (dinner?.caloriesKcal ?? 0)
+}
+
 export const formatAmount = (amount: number) =>
   new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 }).format(amount)
 export const portionLabel = (amount: number) =>

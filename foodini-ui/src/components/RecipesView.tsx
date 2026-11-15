@@ -128,7 +128,7 @@ export function RecipesView({
                   {recipe.description}
                 </p>
                 <div className="mt-2.5 text-xs text-foodini-muted">
-                  {recipe.prepTimeMinutes} min · {recipe.basePortions}{' '}
+                  {recipe.prepTimeMinutes} min · {recipe.caloriesKcal} kcal · {recipe.basePortions}{' '}
                   {portionLabel(recipe.basePortions)}
                 </div>
               </div>

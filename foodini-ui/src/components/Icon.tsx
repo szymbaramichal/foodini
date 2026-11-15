@@ -2,6 +2,7 @@ export type IconName =
   | 'recipes'
   | 'shuffle'
   | 'clock'
+  | 'flame'
   | 'plus'
   | 'minus'
   | 'close'
@@ -16,6 +17,8 @@ const paths: Record<IconName, string> = {
   recipes: 'M4 3h4v7a2 2 0 0 1-4 0V3Zm2 9v9M14 3v7h5V3m-2.5 7v11M6 3v6',
   shuffle: 'M3 6h3c5 0 7 12 12 12h3m-4-4 4 4-4 4M3 18h3c2 0 3-2 4-4m4-4c1-2 2-4 4-4h3m-4-4 4 4-4 4',
   clock: 'M12 8v5l3 2M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z',
+  flame:
+    'M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z',
   plus: 'M12 5v14M5 12h14',
   minus: 'M5 12h14',
   close: 'm6 6 12 12M6 18 18 6',

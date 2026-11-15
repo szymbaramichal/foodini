@@ -1,5 +1,5 @@
 import { Icon } from './Icon.tsx'
-import { isBatchLocked, portionLabel } from '../domain.ts'
+import { calculateDayCalories, isBatchLocked, portionLabel } from '../domain.ts'
 import type { MealPlanDay, MealSlot, MealType, PlanSettings, Recipe } from '../types.ts'
 
 interface MealPlanSlotRowProps {
@@ -51,8 +51,8 @@ function MealPlanSlotRow({
         </h2>
         <p className="text-[13px] leading-relaxed text-foodini-muted">
           {slot.isLeftoverDay
-            ? `${slot.servings} ${portionLabel(slot.servings)} · porcja z wczoraj (dzień ${dayIndex})`
-            : `${slot.servings} ${portionLabel(slot.servings)} do przygotowania${
+            ? `${recipe.caloriesKcal} kcal · ${slot.servings} ${portionLabel(slot.servings)} · porcja z wczoraj (dzień ${dayIndex})`
+            : `${recipe.caloriesKcal} kcal · ${slot.servings} ${portionLabel(slot.servings)} do przygotowania${
                 slot.coversDays === 2 ? ' · na dwa dni' : ''
               } · ${recipe.prepTimeMinutes} min`}
         </p>
@@ -113,6 +113,11 @@ export function PlannerView({
     (sum, day) => sum + Number(!day.lunch.isLeftoverDay) + Number(!day.dinner.isLeftoverDay),
     0,
   )
+  const totalDailyCalories = plan.reduce(
+    (sum, day) => sum + calculateDayCalories(day, allRecipes),
+    0,
+  )
+  const averageDailyCalories = plan.length ? Math.round(totalDailyCalories / plan.length) : 0
 
   return (
     <section aria-label="Plan posiłków">
@@ -197,6 +202,7 @@ export function PlannerView({
       <div className="my-4 flex items-center justify-between gap-3 text-sm sm:my-5">
         <p className="text-foodini-muted">
           Dni: {plan.length} · Posiłki do przygotowania: {cookingCount}
+          {plan.length > 0 && ` · Średnio: ${averageDailyCalories} kcal / os.`}
         </p>
         <button className="btn-text" onClick={onNavigateToRecipes}>
           Przeglądaj posiłki
@@ -213,14 +219,23 @@ export function PlannerView({
             allRecipes.find(recipe => recipe.id === day.dinner.recipeId) || fallbackDinner
           const lunchLocked = isBatchLocked(plan, index, 'lunch')
           const dinnerLocked = isBatchLocked(plan, index, 'dinner')
+          const dayCalories = calculateDayCalories(day, allRecipes)
 
           return (
             <article
               key={day.dayIndex}
               className="overflow-hidden rounded-md border border-foodini-border bg-white"
             >
-              <div className="border-b border-foodini-border bg-foodini-subtle/80 px-4 py-2 sm:px-5">
+              <div className="flex items-center justify-between border-b border-foodini-border bg-foodini-subtle/80 px-4 py-2 sm:px-5">
                 <span className="text-sm font-semibold text-foodini-text">Dzień {index + 1}</span>
+                <span
+                  className="flex items-center gap-1 text-xs font-medium text-foodini-muted sm:text-sm"
+                  title={`${dayCalories} kcal na osobę`}
+                >
+                  <Icon name="flame" size={15} />
+                  <span className="hidden sm:inline">{dayCalories} kcal na osobę</span>
+                  <span className="sm:hidden">{dayCalories} kcal / os.</span>
+                </span>
               </div>
 
               <div className="divide-y divide-foodini-border/60">

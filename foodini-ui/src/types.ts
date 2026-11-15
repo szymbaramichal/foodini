@@ -28,6 +28,7 @@ export interface Recipe {
   prepTimeMinutes: number
   difficulty: 'easy' | 'medium' | 'hard'
   basePortions: number
+  caloriesKcal: number
   tags: RecipeTag[]
   ingredients: IngredientItem[]
   instructions: string[]

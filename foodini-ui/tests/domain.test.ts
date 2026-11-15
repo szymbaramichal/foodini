@@ -3,6 +3,7 @@ import test from 'node:test'
 import { recipes } from '../src/data/recipes.ts'
 import {
   aggregateShoppingList,
+  calculateDayCalories,
   filterRecipes,
   generatePlan,
   isBatchLocked,
@@ -336,6 +337,8 @@ test('the seed catalog has valid quantities, identifiers, tags, and Polish instr
   assert.equal(new Set(recipes.map(recipe => recipe.id)).size, recipes.length)
   for (const recipe of recipes) {
     assert.ok(recipe.basePortions > 0)
+    assert.ok(recipe.caloriesKcal > 0)
+    assert.ok(Number.isInteger(recipe.caloriesKcal))
     assert.ok(['lunch', 'dinner'].includes(recipe.mealType))
     assert.ok(recipe.instructions.length >= 4)
     assert.ok(recipe.ingredients.every(item => item.amount > 0))
@@ -407,4 +410,51 @@ test('toggleItemChecked toggles items idempotently and safely for fast clicks', 
   // 3rd click: checks again
   checked = toggleItemChecked(checked, item)
   assert.equal(checked[item.id], '480:g')
+})
+
+test('calculateDayCalories computes total calories per person per day correctly', () => {
+  const lunch = recipes.find(r => r.id === 'chickpea-curry')!
+  const dinner = recipes.find(r => r.id === 'veggie-ham-sandwiches')!
+  const day = {
+    dayIndex: 0,
+    dayLabel: 'Dzień 1',
+    lunch: {
+      recipeId: lunch.id,
+      servings: 4,
+      coversDays: 2,
+      isLeftoverDay: false,
+      isLocked: false,
+    },
+    dinner: {
+      recipeId: dinner.id,
+      servings: 2,
+      coversDays: 1,
+      isLeftoverDay: false,
+      isLocked: false,
+    },
+  }
+  const dayCalories = calculateDayCalories(day, recipes)
+  assert.equal(dayCalories, lunch.caloriesKcal + dinner.caloriesKcal)
+  assert.equal(dayCalories, 650 + 330)
+
+  // On leftover day, the person still consumes one portion of the lunch and one portion of dinner
+  const leftoverDay = {
+    ...day,
+    dayIndex: 1,
+    dayLabel: 'Dzień 2',
+    lunch: {
+      ...day.lunch,
+      servings: 2,
+      coversDays: 1,
+      isLeftoverDay: true,
+    },
+  }
+  assert.equal(calculateDayCalories(leftoverDay, recipes), lunch.caloriesKcal + dinner.caloriesKcal)
+
+  // Unknown recipe fallback
+  const unknownDay = {
+    ...day,
+    lunch: { ...day.lunch, recipeId: 'non-existent' },
+  }
+  assert.equal(calculateDayCalories(unknownDay, recipes), dinner.caloriesKcal)
 })
